@@ -2,11 +2,11 @@ package br.com.jackson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
 public class Main {
@@ -19,13 +19,11 @@ public class Main {
 	private static final String TEST_DTSi = "DTSi";
 
 	private static final String PATTERN_DATE = "yyyy-MM-dd-HH-mm-ss";
-	private static final String FORMAT_SECONDS = "%.2fs";
 
 	private static final String JSON_PATH_HTTP_REQS_RATE = "metrics.http_reqs.rate";
 	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
 	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
-	private static final String WORKER_DIR = "/Users/jacksoncastro/git/hipstershop-aws";
 	private static final String SERVICE_TARGET = "productcatalogservice";
 	private static final double EXTRA_LATENCY = 0.2d; // in seconds
 	private static final double PERFORMANCE_GAIN = 0.1d; // in seconds
@@ -46,7 +44,7 @@ public class Main {
 			test(date, i);
 			logger.info("Ending test number {}", i);
 		}
-		clean();
+		HipersterHelper.clean();
 	}
 
 	private String getDate() {
@@ -61,163 +59,74 @@ public class Main {
 	}
 
 	private void testNT(String date, int round) {
-		clean();
-		createApp();
-		virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
+		HipersterHelper.clean();
+		HipersterHelper.createApp();
+		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
 		stabilization();
-		runK6(TEST_NT, date, round);
+		HipersterHelper.runK6(TEST_NT, date, round);
 	}
 
 	private void testAT(String date, int round) {
 
-		clean();
+		HipersterHelper.clean();
 
-		String key = String.format(SUMMARY_KEY, date, TEST_NT, round);
-		String item = S3Singleton.getItem(key);
+		SummaryDTO summary = getSummary(date, TEST_NT, round);
 
-		String readRPS = JsonPath.read(item, JSON_PATH_HTTP_REQS_RATE).toString();
-		String readIteration = JsonPath.read(item, JSON_PATH_DURATION_MED).toString();
+		int iteration = (int) Math.ceil(summary.getIteration());
+		int rps = (int) Math.ceil(summary.getRps());
 
-		int rps = (int) Math.ceil(Double.valueOf(readRPS));
-		int iteration = (int) Math.ceil(Double.valueOf(readIteration));
-
-		createApp();
-		virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
+		HipersterHelper.createApp();
+		HipersterHelper.virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
 		stabilization();
-		runK6(TEST_AT, date, round, iteration, rps);
+		HipersterHelper.runK6(TEST_AT, date, round, iteration, rps);
 	}
 
 	private void testDT(String date, int round) {
-		clean();
-		createApp();
+		HipersterHelper.clean();
+		HipersterHelper.createApp();
 
-		virtualService(PERFORMANCE_GAIN);
-	    virtualServiceOnly(SUM_EXTRA_GAIN, SERVICE_TARGET);
+		HipersterHelper.virtualService(PERFORMANCE_GAIN);
+		HipersterHelper.virtualServiceOnly(SUM_EXTRA_GAIN, SERVICE_TARGET);
 
 	    stabilization();
 
-	    runK6(TEST_DT, date, round);
+	    HipersterHelper.runK6(TEST_DT, date, round);
 	}
 
 	private void testDTSi(String date, int round) {
 
-	    clean();
+		HipersterHelper.clean();
 
-	    String key = String.format(SUMMARY_KEY, date, TEST_DT, round);
-		String item = S3Singleton.getItem(key);
+		SummaryDTO summary = getSummary(date, TEST_DT, round);
 
-		String readRPS = JsonPath.read(item, JSON_PATH_HTTP_REQS_RATE).toString();
-		String readIteration = JsonPath.read(item, JSON_PATH_DURATION_MED).toString();
+		int iteration = (int) Math.ceil(summary.getIteration());
+		int rps = (int) Math.ceil(summary.getRps());
 
-		int rps = (int) Math.ceil(Double.valueOf(readRPS));
-		int iteration = (int) Math.ceil(Double.valueOf(readIteration));
+		HipersterHelper.createApp();
 
-	    createApp();
+		HipersterHelper.virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
+		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
 
-	    virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
-	    virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
-
-	    runK6(TEST_DTSi, date, round, iteration, rps);
+		HipersterHelper.runK6(TEST_DTSi, date, round, iteration, rps);
 	}
 
-	private void createApp() {
-		logger.info("Create project");
-	    Helper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl apply -f -", WORKER_DIR);
+	private SummaryDTO getSummary(String date, String name, int round) {
 
-	    logger.info("Wait create...");
-	    Helper.sleep(1);
+		String key = String.format(SUMMARY_KEY, date, name, round);
+		String json = S3Singleton.getItem(key);
 
-	    Helper.exec("/usr/local/bin/kubectl wait po -l group=app --for=condition=ready --timeout=1800s", WORKER_DIR);
-		logger.info("Created");
+		DocumentContext documentContext = JsonPath.parse(json);
+
+		double iteration = documentContext.read(JSON_PATH_DURATION_MED, Double.class);
+		double rps = documentContext.read(JSON_PATH_HTTP_REQS_RATE, Double.class);
+
+		return new SummaryDTO(iteration, rps);
 	}
 
-	private void virtualService(double timeout) {
-		virtualService(timeout, null);
-	}
-
-	private void virtualService(double timeout, String exclude) {
-
-		String format = String.format(FORMAT_SECONDS, timeout);
-
-		String command;
-	    if (exclude != null && !exclude.isEmpty()) {
-	    	command = String.format("./virtual-service.sh --delay=\"%s\" --exclude=\"%s\" | /usr/local/bin/kubectl apply -f -", format, exclude);
-	    } else {
-	    	command = String.format("./virtual-service.sh --delay=\"%s\" | /usr/local/bin/kubectl apply -f -", format);
-	    }
-	    Helper.exec(command, WORKER_DIR);
-	}
-
-	private void virtualServiceOnly(double timeout, String target) {
-		String format = String.format(FORMAT_SECONDS, timeout);
-		logger.info("Apply {} in service {}", format, target);
-		String command = String.format("./virtual-service.sh --delay=\"%s\" --only=\"%s\" | /usr/local/bin/kubectl apply -f -", format, target);
-		Helper.exec(command, WORKER_DIR);
-	}
-
-	private void clean() {
-		deleteTest();
-	    deleteVirtualServices();
-	    deleteApp();
-	}
-
-	private void deleteTest() {
-		logger.info("Deleting test");
-	    Helper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-		logger.info("Deleted test");
-	}
-
-	private void deleteVirtualServices() {
-		logger.info("Deleting virtual services...");
-	    Helper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-		logger.info("Deleted virtual services.");
-	}
-
-	private void deleteApp() {
-
-		logger.info("Deleting app...");
-
-		Helper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-
-		List<String> output = Helper.exec("/usr/local/bin/kubectl get po -l group=app -o NAME", WORKER_DIR);
-
-		if (output != null && !output.isEmpty()) {
-			logger.info("Wait delete...");
-			Helper.exec("/usr/local/bin/kubectl wait po -l group=app --for=delete --timeout=1800s", WORKER_DIR);
-		}
-	    logger.info("Deleted app.");
-	}
-	
 	private void stabilization() {
 		logger.info("Waiting for stabilization");
-	    Helper.sleep(20);
+	    FuntionHelper.sleep(20);
 	    logger.info("Done!");
 	}
-
-	private void runK6(String name, String date, int round) {
-		runK6(name, date, round, null, null);
-	}
-
-	private void runK6(String name, String date, int round, Integer iteration, Integer rps) {
-
-		setEnvironmentK6(date, name, round, iteration, rps);
-
-		logger.info("Creating test k6 - {}", name);
-		Helper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl apply -f -", WORKER_DIR);
-		logger.info("Created test k6 - {}", name);
-		
-		logger.info("Wait test {}", name);
-		Helper.exec("/usr/local/bin/kubectl -n k6 wait job/k6 --for=condition=complete --timeout=1800s", WORKER_DIR);
-		logger.info("Fineshed test {}", name);
-	}
-
-	private void setEnvironmentK6(String date, String name, int round, Integer iteration, Integer rps) {
-
-		String title = date + "/" + name;
-
-		String format = "TITLE=\"%s\" ROUND=\"%d\" ITERATION=\"%s\" RPS=\"%s\" /usr/local/bin/envsubst < k6/k6-config.env.example > k6/k6-config.env";
-		String command = String.format(format, title, round, iteration == null ? "" : iteration, rps == null ? "" : rps);
-
-		Helper.exec(command, WORKER_DIR);
-	}
+	
 }

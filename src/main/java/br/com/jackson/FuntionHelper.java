@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Helper {
+public final class FuntionHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(Helper.class);
+	private static final Logger logger = LoggerFactory.getLogger(FuntionHelper.class);
 
-	private Helper() {
+	private FuntionHelper() {
 	}
 
 	public static void sleep(int timeout) {
@@ -43,7 +43,7 @@ public final class Helper {
 
 			List<String> output = bufferedReader
 					.lines()
-					.peek(Helper.logger::info)
+					.peek(FuntionHelper.logger::info)
 					.collect(Collectors.toList());
 
 			int code = process.waitFor();
