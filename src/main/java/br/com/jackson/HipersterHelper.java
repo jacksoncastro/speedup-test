@@ -10,7 +10,7 @@ public final class HipersterHelper {
 	private static final Logger logger = LoggerFactory.getLogger(HipersterHelper.class);
 
 	private static final String WORKER_DIR = "/Users/jacksoncastro/git/hipstershop-aws";
-	private static final String FORMAT_SECONDS = "%.2fs";
+	private static final String FORMAT_SECONDS = "%ss";
 
 	private HipersterHelper() {
 	}
@@ -26,11 +26,11 @@ public final class HipersterHelper {
 		logger.info("Created");
 	}
 
-	public static void virtualService(double timeout) {
+	public static void virtualService(float timeout) {
 		virtualService(timeout, null);
 	}
 
-	public static void virtualService(double timeout, String exclude) {
+	public static void virtualService(float timeout, String exclude) {
 
 		String format = String.format(FORMAT_SECONDS, timeout);
 
@@ -43,7 +43,7 @@ public final class HipersterHelper {
 	    FuntionHelper.exec(command, WORKER_DIR);
 	}
 
-	public static void virtualServiceOnly(double timeout, String target) {
+	public static void virtualServiceOnly(float timeout, String target) {
 		String format = String.format(FORMAT_SECONDS, timeout);
 		logger.info("Apply {} in service {}", format, target);
 		String command = String.format("./virtual-service.sh --delay=\"%s\" --only=\"%s\" | /usr/local/bin/kubectl apply -f -", format, target);
@@ -56,41 +56,14 @@ public final class HipersterHelper {
 	    deleteApp();
 	}
 
-	private static void deleteTest() {
-		logger.info("Deleting test");
-	    FuntionHelper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-		logger.info("Deleted test");
-	}
-
-	private static void deleteVirtualServices() {
-		logger.info("Deleting virtual services...");
-	    FuntionHelper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-		logger.info("Deleted virtual services.");
-	}
-
-	private static void deleteApp() {
-
-		logger.info("Deleting app...");
-
-		FuntionHelper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-
-		List<String> output = FuntionHelper.exec("/usr/local/bin/kubectl get po -l group=app -o NAME", WORKER_DIR);
-
-		if (output != null && !output.isEmpty()) {
-			logger.info("Wait delete...");
-			FuntionHelper.exec("/usr/local/bin/kubectl wait po -l group=app --for=delete --timeout=1800s", WORKER_DIR);
-		}
-	    logger.info("Deleted app.");
-	}
-
 	public static void runK6(String name, String date, int round) {
 		runK6(name, date, round, null, null);
 	}
 
 	public static void runK6(String name, String date, int round, Integer iteration, Integer rps) {
-
+		
 		setEnvironmentK6(date, name, round, iteration, rps);
-
+		
 		logger.info("Creating test k6 - {}", name);
 		FuntionHelper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl apply -f -", WORKER_DIR);
 		logger.info("Created test k6 - {}", name);
@@ -98,6 +71,33 @@ public final class HipersterHelper {
 		logger.info("Wait test {}", name);
 		FuntionHelper.exec("/usr/local/bin/kubectl -n k6 wait job/k6 --for=condition=complete --timeout=1800s", WORKER_DIR);
 		logger.info("Fineshed test {}", name);
+	}
+
+	private static void deleteTest() {
+		logger.info("Deleting test");
+		FuntionHelper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
+		logger.info("Deleted test");
+	}
+	
+	private static void deleteVirtualServices() {
+		logger.info("Deleting virtual services...");
+		FuntionHelper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
+		logger.info("Deleted virtual services.");
+	}
+
+	private static void deleteApp() {
+		
+		logger.info("Deleting app...");
+		
+		FuntionHelper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
+		
+		List<String> output = FuntionHelper.exec("/usr/local/bin/kubectl get po -l group=app -o NAME", WORKER_DIR);
+		
+		if (output != null && !output.isEmpty()) {
+			logger.info("Wait delete...");
+			FuntionHelper.exec("/usr/local/bin/kubectl wait po -l group=app --for=delete --timeout=1800s", WORKER_DIR);
+		}
+		logger.info("Deleted app.");
 	}
 
 	private static void setEnvironmentK6(String date, String name, int round, Integer iteration, Integer rps) {

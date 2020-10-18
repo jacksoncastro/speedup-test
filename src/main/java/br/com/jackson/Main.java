@@ -14,9 +14,12 @@ public class Main {
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private static final String TEST_NT = "NT";
-	private static final String TEST_AT = "AT";
+	private static final String TEST_ATS = "ATS";
 	private static final String TEST_DT = "DT";
-	private static final String TEST_DTSi = "DTSi";
+	private static final String TEST_DTS = "DTS";
+
+	private static final String TEST_ATS_LIMITED = "ATS+";
+	private static final String TEST_DTS_LIMITED = "DTS+";
 
 	private static final String PATTERN_DATE = "yyyy-MM-dd-HH-mm-ss";
 
@@ -25,12 +28,12 @@ public class Main {
 	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
 	private static final String SERVICE_TARGET = "productcatalogservice";
-	private static final double EXTRA_LATENCY = 0.2d; // in seconds
-	private static final double PERFORMANCE_GAIN = 0.1d; // in seconds
+	private static final float EXTRA_LATENCY = 0.1f; // in seconds
+	private static final float PERFORMANCE_GAIN = 0.05f; // in seconds
 	private static final int ROUNDS = 5;
 
-	private static final double SUM_EXTRA_GAIN = EXTRA_LATENCY + PERFORMANCE_GAIN;
-	private static final double SUB_EXTRA_GAIN = EXTRA_LATENCY - PERFORMANCE_GAIN;
+	private static final float SUM_EXTRA_GAIN = EXTRA_LATENCY + PERFORMANCE_GAIN;
+	private static final float SUB_EXTRA_GAIN = EXTRA_LATENCY - PERFORMANCE_GAIN;
 
 	public static void main(String[] args) throws Exception {
 		Main main = new Main();
@@ -39,10 +42,10 @@ public class Main {
 
 	private void init() throws Exception {
 		String date = getDate();
-		for (int i = 1; i <= ROUNDS; i++) {
-			logger.info("Begin test number {}", i);
-			test(date, i);
-			logger.info("Ending test number {}", i);
+		for (int round = 1; round <= ROUNDS; round++) {
+			logger.info("Begin test number {}", round);
+			test(date, round);
+			logger.info("Ending test number {}", round);
 		}
 		HipersterHelper.clean();
 	}
@@ -53,9 +56,11 @@ public class Main {
 
 	private void test(String date, int round) {
 		testNT(date, round);
-		testAT(date, round);
+		testATS(date, round);
+		testATSLimited(date, round);
 		testDT(date, round);
-		testDTSi(date, round);
+		testDTS(date, round);
+		testDTSLimited(date, round);
 	}
 
 	private void testNT(String date, int round) {
@@ -66,7 +71,17 @@ public class Main {
 		HipersterHelper.runK6(TEST_NT, date, round);
 	}
 
-	private void testAT(String date, int round) {
+	private void testATS(String date, int round) {
+
+		HipersterHelper.clean();
+
+		HipersterHelper.createApp();
+		HipersterHelper.virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
+		stabilization();
+		HipersterHelper.runK6(TEST_ATS, date, round);
+	}
+
+	private void testATSLimited(String date, int round) {
 
 		HipersterHelper.clean();
 
@@ -78,7 +93,7 @@ public class Main {
 		HipersterHelper.createApp();
 		HipersterHelper.virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
 		stabilization();
-		HipersterHelper.runK6(TEST_AT, date, round, iteration, rps);
+		HipersterHelper.runK6(TEST_ATS_LIMITED, date, round, iteration, rps);
 	}
 
 	private void testDT(String date, int round) {
@@ -93,7 +108,19 @@ public class Main {
 	    HipersterHelper.runK6(TEST_DT, date, round);
 	}
 
-	private void testDTSi(String date, int round) {
+	private void testDTS(String date, int round) {
+
+		HipersterHelper.clean();
+
+		HipersterHelper.createApp();
+
+		HipersterHelper.virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
+		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
+
+		HipersterHelper.runK6(TEST_DTS, date, round);
+	}
+
+	private void testDTSLimited(String date, int round) {
 
 		HipersterHelper.clean();
 
@@ -107,7 +134,7 @@ public class Main {
 		HipersterHelper.virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
 		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
 
-		HipersterHelper.runK6(TEST_DTSi, date, round, iteration, rps);
+		HipersterHelper.runK6(TEST_DTS_LIMITED, date, round, iteration, rps);
 	}
 
 	private SummaryDTO getSummary(String date, String name, int round) {
@@ -117,8 +144,8 @@ public class Main {
 
 		DocumentContext documentContext = JsonPath.parse(json);
 
-		double iteration = documentContext.read(JSON_PATH_DURATION_MED, Double.class);
-		double rps = documentContext.read(JSON_PATH_HTTP_REQS_RATE, Double.class);
+		float iteration = documentContext.read(JSON_PATH_DURATION_MED, Float.class);
+		float rps = documentContext.read(JSON_PATH_HTTP_REQS_RATE, Float.class);
 
 		return new SummaryDTO(iteration, rps);
 	}

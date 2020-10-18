@@ -2,20 +2,20 @@ package br.com.jackson;
 
 public class SummaryDTO {
 
-	private final double iteration;
+	private final float iteration;
 
-	private final double rps;
+	private final float rps;
 
-	public SummaryDTO(double iteration, double rps) {
+	public SummaryDTO(float iteration, float rps) {
 		this.iteration = iteration;
 		this.rps = rps;
 	}
 
-	public double getIteration() {
+	public float getIteration() {
 		return iteration;
 	}
 
-	public double getRps() {
+	public float getRps() {
 		return rps;
 	}
 }
