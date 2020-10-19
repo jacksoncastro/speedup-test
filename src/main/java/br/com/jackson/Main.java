@@ -17,6 +17,7 @@ import com.jayway.jsonpath.JsonPath;
 
 import br.com.jackson.dto.Scenarie;
 import br.com.jackson.dto.Scenaries;
+import br.com.jackson.dto.Summary;
 import br.com.jackson.dto.Test;
 
 public class Main {
@@ -85,7 +86,7 @@ public class Main {
 	private void runK6(Scenarie scenarie, Test test, String date, int round) {
 
 		if (test.getLimite() != null) {
-			SummaryDTO summary = getSummary(date, test.getLimite().getFrom(), round);
+			Summary summary = getSummary(date, test.getLimite().getFrom(), round);
 
 			List<String> roles = Arrays.asList(test.getLimite().getRoles());
 
@@ -117,7 +118,7 @@ public class Main {
 		}
 	}
 
-	private SummaryDTO getSummary(String date, String name, int round) {
+	private Summary getSummary(String date, String name, int round) {
 
 		String key = String.format(SUMMARY_KEY, date, name, round);
 		String json = S3Singleton.getItem(key);
@@ -127,7 +128,7 @@ public class Main {
 		float iteration = documentContext.read(JSON_PATH_DURATION_MED, Float.class);
 		float rps = documentContext.read(JSON_PATH_HTTP_REQS_RATE, Float.class);
 
-		return new SummaryDTO(iteration, rps);
+		return new Summary(iteration, rps);
 	}
 
 	private void stabilization() {

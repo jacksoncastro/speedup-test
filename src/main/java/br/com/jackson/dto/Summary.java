@@ -1,12 +1,12 @@
-package br.com.jackson;
+package br.com.jackson.dto;
 
-public class SummaryDTO {
+public class Summary {
 
 	private final float iteration;
 
 	private final float rps;
 
-	public SummaryDTO(float iteration, float rps) {
+	public Summary(float iteration, float rps) {
 		this.iteration = iteration;
 		this.rps = rps;
 	}
