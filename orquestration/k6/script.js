@@ -2,18 +2,20 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend, Counter } from 'k6/metrics';
 
-const ITERATION = __ENV.ITERATION;
 const RPS = __ENV.RPS;
+const VUS = parseInt(__ENV.VUS || 1);
+const ITERATIONS = parseInt(__ENV.ITERATIONS || 1);
+const MIN_DURATION_ITERATION = __ENV.MIN_DURATION_ITERATION;
 
 let custom = {};
 
 if (RPS) {
-    custom.rps = RPS;
+    custom.rps = parseInt(RPS);
 }
 
 export let options = Object.assign({
-    vus: 100,
-    iterations: 100,
+    vus: VUS,
+    iterations: ITERATIONS,
     duration: '20m',
 }, custom);
 
@@ -53,7 +55,7 @@ function addSessionData(session, response) {
 
 export default function (data) {
 
-    if (!ITERATION) {
+    if (!MIN_DURATION_ITERATION) {
         iteration();
         return;
     }
@@ -64,13 +66,13 @@ export default function (data) {
 
     const after = new Date().getTime();
     const diff = (after - before) / 1000;
-    const remainder = (ITERATION / 1000) - diff;
+    const remainder = (parseInt(MIN_DURATION_ITERATION) / 1000) - diff;
 
     if (remainder > 0) {
         sleep(remainder);
     } else {
         console.warn(
-            `Timer exhausted! The execution time of the test took longer than ${ITERATION} seconds. Remainder:${remainder}`
+            `Timer exhausted! The execution time of the test took longer than ${MIN_DURATION_ITERATION} seconds. Remainder:${remainder}`
         );
     }
 }

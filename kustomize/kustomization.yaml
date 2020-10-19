@@ -21,3 +21,4 @@ configMapGenerator:
   files:
     # configfile is used as key
     - config=config
+    - scenaries=scenaries.yml

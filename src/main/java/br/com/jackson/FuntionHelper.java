@@ -19,25 +19,6 @@ public final class FuntionHelper {
 	private FuntionHelper() {
 	}
 
-	public static <T> T getEnv(String key, T defaultValue, Class<T> clazz) {
-		String environment = System.getenv(key);
-		if (environment == null) {
-			if (defaultValue == null) {			
-				return null;
-			}
-			return defaultValue;
-		}
-
-		if (clazz.isAssignableFrom(Integer.class)) {
-			return clazz.cast(Integer.valueOf(environment));
-		}
-
-		if (clazz.isAssignableFrom(Float.class)) {
-			return clazz.cast(Float.valueOf(environment));
-		}
-		return clazz.cast(environment);
-	}
-
 	public static void sleep(int timeout) {
 		try {
 			TimeUnit.SECONDS.sleep(timeout);

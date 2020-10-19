@@ -39,11 +39,21 @@ spec:
               configMapKeyRef:
                 name: k6-config
                 key: ROUND
-          - name: ITERATION
+          - name: MIN_DURATION_ITERATION
             valueFrom:
               configMapKeyRef:
                 name: k6-config
-                key: ITERATION
+                key: MIN_DURATION_ITERATION
+          - name: VUS
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: VUS
+          - name: ITERATIONS
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: ITERATIONS
           - name: RPS
             valueFrom:
               configMapKeyRef:

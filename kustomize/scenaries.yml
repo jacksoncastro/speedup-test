@@ -1,0 +1,48 @@
+scenaries:
+- users: 10
+  iterations: 10
+  rounds: 1
+  tests:
+  - name: NT
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+  - name: ATS
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+  - name: ATS+
+    limite:
+      from: NT
+      roles:
+        - rps
+        - iteration
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+  - name: DT
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+        allExceptTarget: true
+      - target: productcatalogservice
+        delay: 0.15
+  - name: DTS
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+        allExceptTarget: true
+      - target: productcatalogservice
+        delay: 0.1
+  - name: DTS+
+    limite:
+      from: DT
+      roles:
+        - rps
+        - iteration
+    virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+        allExceptTarget: true
+      - target: productcatalogservice
+        delay: 0.1

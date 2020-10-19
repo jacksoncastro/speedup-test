@@ -1,25 +1,26 @@
 package br.com.jackson;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+
+import br.com.jackson.dto.Scenarie;
+import br.com.jackson.dto.Scenaries;
+import br.com.jackson.dto.Test;
 
 public class Main {
 
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
-	private static final String TEST_NT = "NT";
-	private static final String TEST_ATS = "ATS";
-	private static final String TEST_DT = "DT";
-	private static final String TEST_DTS = "DTS";
-
-	private static final String TEST_ATS_LIMITED = "ATS+";
-	private static final String TEST_DTS_LIMITED = "DTS+";
 
 	private static final String PATTERN_DATE = "yyyy-MM-dd-HH-mm-ss";
 
@@ -27,24 +28,12 @@ public class Main {
 	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
 	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
-	private static final String ENV_ROUNDS = "ROUNDS";
-	private static final String ENV_SERVICE_TARGET = "SERVICE_TARGET";
-	private static final String ENV_EXTRA_LATENCY = "EXTRA_LATENCY";
-	private static final String ENV_PERFORMANCE_GAIN = "PERFORMANCE_GAIN";
-	
-	private static final String SERVICE_TARGET = FuntionHelper.getEnv(ENV_SERVICE_TARGET, null, String.class);
-	private static final int ROUNDS = FuntionHelper.getEnv(ENV_ROUNDS, 1, Integer.class);
-	// in seconds
-	private static final float EXTRA_LATENCY = FuntionHelper.getEnv(ENV_EXTRA_LATENCY, 0f, Float.class);
-	private static final float PERFORMANCE_GAIN = FuntionHelper.getEnv(ENV_PERFORMANCE_GAIN, 0f, Float.class);
+	private static final String ROLE_ITERATION = "iteration";
+	private static final String ROLE_RPS = "rps";
 
-	private static final float SUM_EXTRA_GAIN = EXTRA_LATENCY + PERFORMANCE_GAIN;
-	private static final float SUB_EXTRA_GAIN = EXTRA_LATENCY - PERFORMANCE_GAIN;
+	private static final String SCENARIES_FILE_DEFAULT = "kustomize/scenaries.yml";
 
 	public Main() throws Exception {
-		if (SERVICE_TARGET == null) {
-			throw new Exception("Env SERVICE_TARGET cannot be empty");
-		}
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -53,14 +42,24 @@ public class Main {
 	}
 
 	private void init() throws Exception {
-		tests();
+
+		String path = System.getenv().getOrDefault(Constants.ENV_SCENARIES_FILE, SCENARIES_FILE_DEFAULT);
+
+		File file = new File(path);
+
+		ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+
+		Scenaries scenaries = objectMapper.readValue(file, Scenaries.class);
+
+		scenaries.getScenaries().forEach(this::runScenarie);
+
 	}
 
-	private void tests() {
+	private void runScenarie(Scenarie scenarie) {
 		String date = getDate();
-		for (int round = 1; round <= ROUNDS; round++) {
+		for (int round = 1; round <= scenarie.getRounds(); round++) {
 			logger.info("Begin test number {}", round);
-			test(date, round);
+			test(scenarie, date, round);
 			logger.info("Ending test number {}", round);
 		}
 		HipersterHelper.clean();
@@ -70,87 +69,49 @@ public class Main {
 		return new SimpleDateFormat(PATTERN_DATE).format(new Date());
 	}
 
-	private void test(String date, int round) {
-		testNT(date, round);
-		testATS(date, round);
-		testATSLimited(date, round);
-		testDT(date, round);
-		testDTS(date, round);
-		testDTSLimited(date, round);
+	private void test(Scenarie scenarie, String date, int round) {
+		scenarie.getTests().forEach(test -> {
+			HipersterHelper.clean();
+			HipersterHelper.createApp();
+			applyVirtualServices(test);
+			stabilization();
+			runK6(scenarie, test, date, round);
+		});
 	}
 
-	private void testNT(String date, int round) {
-		HipersterHelper.clean();
-		HipersterHelper.createApp();
-		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
-		stabilization();
-		HipersterHelper.runK6(TEST_NT, date, round);
+	private void runK6(Scenarie scenarie, Test test, String date, int round) {
+
+		if (test.getLimite() != null) {
+			SummaryDTO summary = getSummary(date, test.getLimite().getFrom(), round);
+
+			List<String> roles = Arrays.asList(test.getLimite().getRoles());
+
+			Integer iteration = null;
+			if (roles.contains(ROLE_ITERATION)) {
+				iteration = (int) Math.ceil(summary.getIteration());
+			}
+
+			Integer rps = null;
+			if (roles.contains(ROLE_RPS)) {
+				rps = (int) Math.ceil(summary.getRps());
+			}
+
+			HipersterHelper.runK6(scenarie, test.getName(), date, round, iteration, rps);
+		} else {
+			HipersterHelper.runK6(scenarie, test.getName(), date, round);
+		}
 	}
 
-	private void testATS(String date, int round) {
-
-		HipersterHelper.clean();
-
-		HipersterHelper.createApp();
-		HipersterHelper.virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
-		stabilization();
-		HipersterHelper.runK6(TEST_ATS, date, round);
-	}
-
-	private void testATSLimited(String date, int round) {
-
-		HipersterHelper.clean();
-
-		SummaryDTO summary = getSummary(date, TEST_NT, round);
-
-		int iteration = (int) Math.ceil(summary.getIteration());
-		int rps = (int) Math.ceil(summary.getRps());
-
-		HipersterHelper.createApp();
-		HipersterHelper.virtualServiceOnly(SUB_EXTRA_GAIN, SERVICE_TARGET);
-		stabilization();
-		HipersterHelper.runK6(TEST_ATS_LIMITED, date, round, iteration, rps);
-	}
-
-	private void testDT(String date, int round) {
-		HipersterHelper.clean();
-		HipersterHelper.createApp();
-
-		HipersterHelper.virtualService(PERFORMANCE_GAIN);
-		HipersterHelper.virtualServiceOnly(SUM_EXTRA_GAIN, SERVICE_TARGET);
-
-		stabilization();
-
-		HipersterHelper.runK6(TEST_DT, date, round);
-	}
-
-	private void testDTS(String date, int round) {
-
-		HipersterHelper.clean();
-
-		HipersterHelper.createApp();
-
-		HipersterHelper.virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
-		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
-
-		HipersterHelper.runK6(TEST_DTS, date, round);
-	}
-
-	private void testDTSLimited(String date, int round) {
-
-		HipersterHelper.clean();
-
-		SummaryDTO summary = getSummary(date, TEST_DT, round);
-
-		int iteration = (int) Math.ceil(summary.getIteration());
-		int rps = (int) Math.ceil(summary.getRps());
-
-		HipersterHelper.createApp();
-
-		HipersterHelper.virtualService(PERFORMANCE_GAIN, SERVICE_TARGET);
-		HipersterHelper.virtualServiceOnly(EXTRA_LATENCY, SERVICE_TARGET);
-
-		HipersterHelper.runK6(TEST_DTS_LIMITED, date, round, iteration, rps);
+	private void applyVirtualServices(Test test) {
+		if (test.getVirtualServices() != null && !test.getVirtualServices().isEmpty()) {
+			test.getVirtualServices().forEach(virtualService -> {
+				if (virtualService.getAllExceptTarget()) {					
+					HipersterHelper.virtualService(virtualService.getDelay(), virtualService.getTarget());
+				} else {						
+					HipersterHelper.virtualServiceOnly(virtualService.getDelay(), virtualService.getTarget());
+				}
+			});
+		}
 	}
 
 	private SummaryDTO getSummary(String date, String name, int round) {
@@ -171,5 +132,4 @@ public class Main {
 		FuntionHelper.sleep(20);
 		logger.info("Done!");
 	}
-	
 }
