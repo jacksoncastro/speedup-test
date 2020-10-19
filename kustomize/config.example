@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: "proxmox-kube-master"
+  cluster:
+    server: "https://192.168.1.121:6443"
+    certificate-authority-data: "XXX"
+
+users:
+- name: "proxmox"
+  user:
+    token: "XXX"
+
+contexts:
+- name: "proxmox"
+  context:
+    user: "proxmox"
+    cluster: "proxmox"
+    namespace: "default"
+
+current-context: "proxmox"

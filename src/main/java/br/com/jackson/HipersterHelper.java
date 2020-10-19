@@ -9,7 +9,8 @@ public final class HipersterHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(HipersterHelper.class);
 
-	private static final String WORKER_DIR = "/Users/jacksoncastro/git/hipstershop-aws";
+	private static final String WORKER_DIR = "/orquestration";
+	private static final String WORKER_DIR_SCRIPT = WORKER_DIR + "/scripts";
 	private static final String FORMAT_SECONDS = "%ss";
 
 	private HipersterHelper() {
@@ -17,12 +18,12 @@ public final class HipersterHelper {
 
 	public static void createApp() {
 		logger.info("Create project");
-	    FuntionHelper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl apply -f -", WORKER_DIR);
+		FuntionHelper.exec("/usr/local/bin/kustomize build hipstershop | /usr/local/bin/kubectl apply -f -", WORKER_DIR);
 
-	    logger.info("Wait create...");
-	    FuntionHelper.sleep(1);
+		logger.info("Wait create...");
+		FuntionHelper.sleep(1);
 
-	    FuntionHelper.exec("/usr/local/bin/kubectl wait po -l group=app --for=condition=ready --timeout=1800s", WORKER_DIR);
+		FuntionHelper.exec("/usr/local/bin/kubectl wait po -l group=app --for=condition=ready --timeout=1800s", WORKER_DIR);
 		logger.info("Created");
 	}
 
@@ -35,25 +36,25 @@ public final class HipersterHelper {
 		String format = String.format(FORMAT_SECONDS, timeout);
 
 		String command;
-	    if (exclude != null && !exclude.isEmpty()) {
-	    	command = String.format("./virtual-service.sh --delay=\"%s\" --exclude=\"%s\" | /usr/local/bin/kubectl apply -f -", format, exclude);
-	    } else {
-	    	command = String.format("./virtual-service.sh --delay=\"%s\" | /usr/local/bin/kubectl apply -f -", format);
-	    }
-	    FuntionHelper.exec(command, WORKER_DIR);
+		if (exclude != null && !exclude.isEmpty()) {
+			command = String.format("./virtual-service.sh --delay=\"%s\" --exclude=\"%s\" | /usr/local/bin/kubectl apply -f -", format, exclude);
+		} else {
+			command = String.format("./virtual-service.sh --delay=\"%s\" | /usr/local/bin/kubectl apply -f -", format);
+		}
+		FuntionHelper.exec(command, WORKER_DIR_SCRIPT);
 	}
 
 	public static void virtualServiceOnly(float timeout, String target) {
 		String format = String.format(FORMAT_SECONDS, timeout);
 		logger.info("Apply {} in service {}", format, target);
 		String command = String.format("./virtual-service.sh --delay=\"%s\" --only=\"%s\" | /usr/local/bin/kubectl apply -f -", format, target);
-		FuntionHelper.exec(command, WORKER_DIR);
+		FuntionHelper.exec(command, WORKER_DIR_SCRIPT);
 	}
 
 	public static void clean() {
 		deleteTest();
-	    deleteVirtualServices();
-	    deleteApp();
+		deleteVirtualServices();
+		deleteApp();
 	}
 
 	public static void runK6(String name, String date, int round) {
@@ -81,16 +82,16 @@ public final class HipersterHelper {
 	
 	private static void deleteVirtualServices() {
 		logger.info("Deleting virtual services...");
-		FuntionHelper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
+		FuntionHelper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR_SCRIPT);
 		logger.info("Deleted virtual services.");
 	}
 
 	private static void deleteApp() {
-		
+
 		logger.info("Deleting app...");
-		
-		FuntionHelper.exec("/usr/local/bin/kustomize build kustomize-app | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
-		
+
+		FuntionHelper.exec("/usr/local/bin/kustomize build hipstershop | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", WORKER_DIR);
+
 		List<String> output = FuntionHelper.exec("/usr/local/bin/kubectl get po -l group=app -o NAME", WORKER_DIR);
 		
 		if (output != null && !output.isEmpty()) {
@@ -104,7 +105,7 @@ public final class HipersterHelper {
 
 		String title = date + "/" + name;
 
-		String format = "TITLE=\"%s\" ROUND=\"%d\" ITERATION=\"%s\" RPS=\"%s\" /usr/local/bin/envsubst < k6/k6-config.env.example > k6/k6-config.env";
+		String format = "TITLE=\"%s\" ROUND=\"%d\" ITERATION=\"%s\" RPS=\"%s\" /usr/bin/envsubst < k6/k6-config.env.example > k6/k6-config.env";
 		String command = String.format(format, title, round, iteration == null ? "" : iteration, rps == null ? "" : rps);
 
 		FuntionHelper.exec(command, WORKER_DIR);

@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6
+  namespace: k6
+  labels:
+    group: test
+spec:
+  template:
+    spec:
+      containers:
+      - name: k6
+        image: jackvasc/k6-test:latest
+        volumeMounts:
+        - name: k6-config
+          mountPath: /k6-script.js
+          subPath: k6-script.js
+        - name: k6-config
+          mountPath: /metrics.json
+          subPath: metrics.json
+        env:
+          - name: ACCESS_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: aws-credentials
+                key: ACCESS_KEY
+          - name: SECRET_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: aws-credentials
+                key: SECRET_KEY
+          - name: TITLE
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: TITLE
+          - name: ROUND
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: ROUND
+          - name: ITERATION
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: ITERATION
+          - name: RPS
+            valueFrom:
+              configMapKeyRef:
+                name: k6-config
+                key: RPS
+      restartPolicy: Never
+      volumes:
+      - name: k6-config
+        configMap:
+          name: k6-config

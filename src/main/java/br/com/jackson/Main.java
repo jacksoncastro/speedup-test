@@ -27,13 +27,25 @@ public class Main {
 	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
 	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
-	private static final String SERVICE_TARGET = "productcatalogservice";
-	private static final float EXTRA_LATENCY = 0.1f; // in seconds
-	private static final float PERFORMANCE_GAIN = 0.05f; // in seconds
-	private static final int ROUNDS = 5;
+	private static final String ENV_ROUNDS = "ROUNDS";
+	private static final String ENV_SERVICE_TARGET = "SERVICE_TARGET";
+	private static final String ENV_EXTRA_LATENCY = "EXTRA_LATENCY";
+	private static final String ENV_PERFORMANCE_GAIN = "PERFORMANCE_GAIN";
+	
+	private static final String SERVICE_TARGET = FuntionHelper.getEnv(ENV_SERVICE_TARGET, null, String.class);
+	private static final int ROUNDS = FuntionHelper.getEnv(ENV_ROUNDS, 1, Integer.class);
+	// in seconds
+	private static final float EXTRA_LATENCY = FuntionHelper.getEnv(ENV_EXTRA_LATENCY, 0f, Float.class);
+	private static final float PERFORMANCE_GAIN = FuntionHelper.getEnv(ENV_PERFORMANCE_GAIN, 0f, Float.class);
 
 	private static final float SUM_EXTRA_GAIN = EXTRA_LATENCY + PERFORMANCE_GAIN;
 	private static final float SUB_EXTRA_GAIN = EXTRA_LATENCY - PERFORMANCE_GAIN;
+
+	public Main() throws Exception {
+		if (SERVICE_TARGET == null) {
+			throw new Exception("Env SERVICE_TARGET cannot be empty");
+		}
+	}
 
 	public static void main(String[] args) throws Exception {
 		Main main = new Main();
@@ -41,6 +53,10 @@ public class Main {
 	}
 
 	private void init() throws Exception {
+		tests();
+	}
+
+	private void tests() {
 		String date = getDate();
 		for (int round = 1; round <= ROUNDS; round++) {
 			logger.info("Begin test number {}", round);
@@ -103,9 +119,9 @@ public class Main {
 		HipersterHelper.virtualService(PERFORMANCE_GAIN);
 		HipersterHelper.virtualServiceOnly(SUM_EXTRA_GAIN, SERVICE_TARGET);
 
-	    stabilization();
+		stabilization();
 
-	    HipersterHelper.runK6(TEST_DT, date, round);
+		HipersterHelper.runK6(TEST_DT, date, round);
 	}
 
 	private void testDTS(String date, int round) {
@@ -152,8 +168,8 @@ public class Main {
 
 	private void stabilization() {
 		logger.info("Waiting for stabilization");
-	    FuntionHelper.sleep(20);
-	    logger.info("Done!");
+		FuntionHelper.sleep(20);
+		logger.info("Done!");
 	}
 	
 }

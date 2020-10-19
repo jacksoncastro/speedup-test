@@ -1,0 +1,28 @@
+[
+    {
+        "name": "avg",
+        "query": "avg( istio_request_duration_milliseconds_sum{reporter=\"source\",response_code=\"200\",destination_app!=\"unknown\"} / istio_request_duration_milliseconds_count{reporter=\"source\",response_code=\"200\",destination_app!=\"unknown\"} ) by (source_app,destination_app)",
+        "sort": [
+            "source_app",
+            "destination_app"
+        ],
+        "columns": [
+            "source_app",
+            "destination_app",
+            "value"
+        ]
+    },
+    {
+        "name": "count",
+        "query": "sum by (source_app,destination_app) (istio_requests_total{reporter=\"source\",response_code=\"200\",destination_app!=\"unknown\"})",
+        "sort": [
+            "source_app",
+            "destination_app"
+        ],
+        "columns": [
+            "source_app",
+            "destination_app",
+            "value"
+        ]
+    }   
+]
