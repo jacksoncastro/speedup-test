@@ -58,13 +58,17 @@ public class Main {
 	}
 
 	private void runScenarie(Scenarie scenarie) {
-		String date = getDate();
-		for (int round = 1; round <= scenarie.getRounds(); round++) {
-			logger.info("Begin test number {}", round);
-			test(scenarie, date, round);
-			logger.info("Ending test number {}", round);
+		try {
+			String date = getDate();
+			for (int round = 1; round <= scenarie.getRounds(); round++) {
+				logger.info("Begin test number {}", round);
+				test(scenarie, date, round);
+				logger.info("Ending test number {}", round);
+			}
+			HipersterHelper.clean();
+		} catch (Exception e) {
+			logger.error("Error in scenarie:", e);
 		}
-		HipersterHelper.clean();
 	}
 
 	private String getDate() {
