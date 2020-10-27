@@ -7,6 +7,8 @@ public class Scenarie implements Serializable {
 
 	private static final long serialVersionUID = 636940468340453812L;
 
+	private String title;
+
 	private int users;
 
 	private int iterations;
@@ -18,11 +20,20 @@ public class Scenarie implements Serializable {
 	public Scenarie() {
 	}
 
-	public Scenarie(int users, int iterations, int rounds, List<Test> tests) {
+	public Scenarie(String title, int users, int iterations, int rounds, List<Test> tests) {
+		this.title = title;
 		this.users = users;
 		this.iterations = iterations;
 		this.rounds = rounds;
 		this.tests = tests;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public int getUsers() {

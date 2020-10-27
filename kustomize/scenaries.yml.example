@@ -1,5 +1,6 @@
 scenaries:
-- users: 100
+- title: example
+  users: 100
   iterations: 100
   rounds: 1
   tests:

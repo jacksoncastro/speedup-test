@@ -1,11 +1,8 @@
 package br.com.jackson;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +20,6 @@ import br.com.jackson.dto.Test;
 public class Main {
 
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
-	private static final String PATTERN_DATE = "yyyy-MM-dd-HH-mm-ss";
 
 	private static final String JSON_PATH_HTTP_REQS_RATE = "metrics.http_reqs.rate";
 	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
@@ -59,10 +54,9 @@ public class Main {
 
 	private void runScenarie(Scenarie scenarie) {
 		try {
-			String date = getDate();
 			for (int round = 1; round <= scenarie.getRounds(); round++) {
 				logger.info("Begin test number {}", round);
-				test(scenarie, date, round);
+				test(scenarie, round);
 				logger.info("Ending test number {}", round);
 			}
 			HipersterHelper.clean();
@@ -71,26 +65,32 @@ public class Main {
 		}
 	}
 
-	private String getDate() {
-		SimpleDateFormat format = new SimpleDateFormat(PATTERN_DATE);
-		format.setTimeZone(TimeZone.getTimeZone("America/Fortaleza"));
-		return format.format(new Date());
-	}
-
-	private void test(Scenarie scenarie, String date, int round) {
+	private void test(Scenarie scenarie, int round) throws Exception {
+		if (scenarie.getTitle() == null || scenarie.getTitle().isEmpty()) {
+			throw new Exception("Tittle cannot be empty");
+		}
 		scenarie.getTests().forEach(test -> {
+			if (existsTest(scenarie.getTitle(), test.getName(), round)) {
+				logger.info("Skipped scenarie: {}, test: {}, round: {}", scenarie.getTitle(), test.getName(), round);
+				return;
+			}
 			HipersterHelper.clean();
 			HipersterHelper.createApp();
 			applyVirtualServices(test);
 			stabilization();
-			runK6(scenarie, test, date, round);
+			runK6(scenarie, test, round);
 		});
 	}
 
-	private void runK6(Scenarie scenarie, Test test, String date, int round) {
+	private boolean existsTest(String title, String name, int round) {
+		String key = String.format("%s/%s/summary-%d.json", title, name, round);
+		return S3Singleton.existsItem(key);
+	}
+
+	private void runK6(Scenarie scenarie, Test test, int round) {
 
 		if (test.getLimite() != null) {
-			Summary summary = getSummary(date, test.getLimite().getFrom(), round);
+			Summary summary = getSummary(scenarie.getTitle(), test.getLimite().getFrom(), round);
 
 			List<String> roles = Arrays.asList(test.getLimite().getRoles());
 
@@ -104,9 +104,9 @@ public class Main {
 				rps = (int) Math.ceil(summary.getRps());
 			}
 
-			HipersterHelper.runK6(scenarie, test.getName(), date, round, iteration, rps);
+			HipersterHelper.runK6(scenarie, test.getName(), round, iteration, rps);
 		} else {
-			HipersterHelper.runK6(scenarie, test.getName(), date, round);
+			HipersterHelper.runK6(scenarie, test.getName(), round);
 		}
 	}
 

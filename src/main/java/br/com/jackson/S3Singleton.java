@@ -57,4 +57,11 @@ public final class S3Singleton {
 		}
 		return getAmazonS3().getObjectAsString(S3Singleton.BUCKET_NAME, key);
 	}
+
+	public static boolean existsItem(String key) {
+		if (key == null) {
+			return false;
+		}
+		return getAmazonS3().doesObjectExist(BUCKET_NAME, key);
+	}
 }

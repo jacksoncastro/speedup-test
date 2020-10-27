@@ -62,16 +62,16 @@ public final class HipersterHelper {
 		deleteApp();
 	}
 
-	public static void runK6(Scenarie scenarie, String name, String date, int round) {
-		runK6(scenarie, name, date, round, null, null);
+	public static void runK6(Scenarie scenarie, String name, int round) {
+		runK6(scenarie, name, round, null, null);
 	}
 
-	public static void runK6(Scenarie scenarie, String name, String date, int round, Integer minDurationIteration, Integer rps) {
+	public static void runK6(Scenarie scenarie, String name, int round, Integer minDurationIteration, Integer rps) {
 
-		String title = date + "/" + name;
+		String folder = scenarie.getTitle() + "/" + name;
 
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("TITLE", title);
+		parameters.put("TITLE", folder);
 		parameters.put("ROUND", round);
 		parameters.put("MIN_DURATION_ITERATION", minDurationIteration);
 		parameters.put("VUS", scenarie.getUsers());
