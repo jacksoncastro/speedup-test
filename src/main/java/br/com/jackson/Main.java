@@ -83,7 +83,7 @@ public class Main {
 	}
 
 	private boolean existsTest(String title, String name, int round) {
-		String key = String.format("%s/%s/summary-%d.json", title, name, round);
+		String key = String.format(SUMMARY_KEY, title, name, round);
 		return S3Singleton.existsItem(key);
 	}
 
@@ -122,9 +122,9 @@ public class Main {
 		}
 	}
 
-	private Summary getSummary(String date, String name, int round) {
+	private Summary getSummary(String title, String name, int round) {
 
-		String key = String.format(SUMMARY_KEY, date, name, round);
+		String key = String.format(SUMMARY_KEY, title, name, round);
 		String json = S3Singleton.getItem(key);
 
 		DocumentContext documentContext = JsonPath.parse(json);
