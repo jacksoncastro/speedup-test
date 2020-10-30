@@ -69,11 +69,17 @@ public class Main {
 		if (scenarie.getTitle() == null || scenarie.getTitle().isEmpty()) {
 			throw new Exception("Tittle cannot be empty");
 		}
+
+		String[] testsName = this.getTestsName(scenarie.getTests());
+
+		if (existsRound(scenarie.getTitle(), round, testsName)) {
+			logger.info("Skipped scenarie: {} and round: {}", scenarie.getTitle(), round);
+			return;
+		}
+
+		S3Singleton.deleteRound(scenarie.getTitle(), round);
+
 		scenarie.getTests().forEach(test -> {
-			if (existsTest(scenarie.getTitle(), test.getName(), round)) {
-				logger.info("Skipped scenarie: {}, test: {}, round: {}", scenarie.getTitle(), test.getName(), round);
-				return;
-			}
 			HipersterHelper.clean();
 			HipersterHelper.createApp();
 			applyVirtualServices(test);
@@ -82,9 +88,27 @@ public class Main {
 		});
 	}
 
-	private boolean existsTest(String title, String name, int round) {
-		String key = String.format(SUMMARY_KEY, title, name, round);
-		return S3Singleton.existsItem(key);
+	private String[] getTestsName(List<Test> tests) {
+		if (tests == null) {
+			return new String[]{};
+		}
+		return tests
+				.stream()
+				.map(Test::getName)
+				.toArray(String[]::new);
+	}
+
+	private boolean existsRound(String title, int round, String[] strings) {
+
+		for (String test: strings) {
+			String key = String.format(SUMMARY_KEY, title, test, round);
+			boolean exists = S3Singleton.existsItem(key);
+
+			if (!exists) {				
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void runK6(Scenarie scenarie, Test test, int round) {
