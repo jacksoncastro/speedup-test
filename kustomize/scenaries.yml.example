@@ -25,14 +25,14 @@ scenaries:
     virtualServices:
       - target: productcatalogservice
         delay: 0.05
-        allExceptTarget: true
+        allButTarget: true
       - target: productcatalogservice
         delay: 0.15
   - name: DTS
     virtualServices:
       - target: productcatalogservice
         delay: 0.05
-        allExceptTarget: true
+        allButTarget: true
       - target: productcatalogservice
         delay: 0.1
   - name: DTS+
@@ -44,6 +44,6 @@ scenaries:
     virtualServices:
       - target: productcatalogservice
         delay: 0.05
-        allExceptTarget: true
+        allButTarget: true
       - target: productcatalogservice
         delay: 0.1

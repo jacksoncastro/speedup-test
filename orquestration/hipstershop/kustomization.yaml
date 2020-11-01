@@ -13,6 +13,8 @@ resources:
   - manifests/recommendationservice.yaml
   - manifests/redis-cart.yaml
   - manifests/shippingservice.yaml
+  - manifests/frontend-gateway.yaml
+  - manifests/frontend-virtual-service.yaml
 patches:
 - path: patch.yaml
   target:

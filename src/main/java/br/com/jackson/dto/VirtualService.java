@@ -6,27 +6,19 @@ public class VirtualService implements Serializable {
 
 	private static final long serialVersionUID = 3763980030565199850L;
 
-	private String target;
-
 	private float delay;
 
-	private boolean allExceptTarget;
+	private String target;
+
+	private boolean allButTarget;
 
 	public VirtualService() {
 	}
 
-	public VirtualService(String target, float delay, boolean allExceptTarget) {
-		this.target = target;
+	public VirtualService(float delay, String target, boolean allButTarget) {
 		this.delay = delay;
-		this.allExceptTarget = allExceptTarget;
-	}
-
-	public String getTarget() {
-		return target;
-	}
-
-	public void setTarget(String target) {
 		this.target = target;
+		this.allButTarget = allButTarget;
 	}
 
 	public float getDelay() {
@@ -37,11 +29,19 @@ public class VirtualService implements Serializable {
 		this.delay = delay;
 	}
 
-	public boolean getAllExceptTarget() {
-		return allExceptTarget;
+	public String getTarget() {
+		return target;
 	}
 
-	public void setAllExceptTarget(boolean allExceptTarget) {
-		this.allExceptTarget = allExceptTarget;
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+	public boolean isAllButTarget() {
+		return allButTarget;
+	}
+
+	public void setAllButTarget(boolean allButTarget) {
+		this.allButTarget = allButTarget;
 	}
 }

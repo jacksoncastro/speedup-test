@@ -161,7 +161,14 @@ build() {
         export NAME
         export PORT
         export DELAY
-        /usr/bin/envsubst < virtual-service-base.yaml
+        TYPE=$($BASE -o jsonpath='{.spec.type}')
+
+        if [ "$TYPE" = "LoadBalancer" ]; then
+            /usr/bin/envsubst < virtual-service-base-gateway.yaml
+        else
+            /usr/bin/envsubst < virtual-service-base.yaml
+        fi
+
         unset NAME
         unset PORT
     done

@@ -104,7 +104,7 @@ public class Main {
 			String key = String.format(SUMMARY_KEY, title, test, round);
 			boolean exists = S3Singleton.existsItem(key);
 
-			if (!exists) {				
+			if (!exists) {
 				return false;
 			}
 		}
@@ -137,10 +137,14 @@ public class Main {
 	private void applyVirtualServices(Test test) {
 		if (test.getVirtualServices() != null && !test.getVirtualServices().isEmpty()) {
 			test.getVirtualServices().forEach(virtualService -> {
-				if (virtualService.getAllExceptTarget()) {					
-					HipersterHelper.virtualService(virtualService.getDelay(), virtualService.getTarget());
-				} else {						
-					HipersterHelper.virtualServiceOnly(virtualService.getDelay(), virtualService.getTarget());
+				if (virtualService.getTarget() != null) {
+					if (virtualService.isAllButTarget()) {					
+						HipersterHelper.virtualService(virtualService.getDelay(), virtualService.getTarget());
+					} else {
+						HipersterHelper.virtualServiceOnly(virtualService.getDelay(), virtualService.getTarget());
+					}
+				} else {
+					HipersterHelper.virtualService(virtualService.getDelay());
 				}
 			});
 		}

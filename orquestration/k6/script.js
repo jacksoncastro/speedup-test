@@ -23,7 +23,7 @@ let sessionDuration = new Trend('session_duration');
 let sessionWaiting = new Trend('session_waiting');
 let sessionCount = new Counter('session_count');
 
-const host = 'http://frontend.default.svc.cluster.local';
+const host = 'http://istio-ingressgateway.istio-system.svc.cluster.local';
 const currencies = ['EUR', 'USD', 'JPY', 'CAD'];
 const quantities = [1, 2, 3, 4, 5, 10];
 const products = [
