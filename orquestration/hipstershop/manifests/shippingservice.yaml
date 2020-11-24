@@ -29,9 +29,11 @@ spec:
         #   value: "jaeger-collector:14268"
         readinessProbe:
           periodSeconds: 5
+          timeoutSeconds: 60
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:50051"]
         livenessProbe:
+          timeoutSeconds: 60
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:50051"]
         # resources:

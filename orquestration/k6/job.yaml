@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: k6
-        image: jackvasc/k6-test:latest
+        image: jackvasc/k6-test:1.0.0
         volumeMounts:
         - name: k6-config
           mountPath: /k6-script.js

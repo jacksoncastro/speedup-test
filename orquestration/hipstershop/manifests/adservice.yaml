@@ -37,14 +37,16 @@ spec:
           successThreshold: 3
           initialDelaySeconds: 20
           periodSeconds: 15
+          timeoutSeconds: 60
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout", "10000ms", "-rpc-timeout", "10000ms"]
+            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout", "60000ms", "-rpc-timeout", "60000ms"]
         livenessProbe:
           initialDelaySeconds: 20
           periodSeconds: 15
           failureThreshold: 3
+          timeoutSeconds: 60
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout", "10000ms", "-rpc-timeout", "10000ms"]
+            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout", "60000ms", "-rpc-timeout", "60000ms"]
 ---
 apiVersion: v1
 kind: Service

@@ -17,9 +17,11 @@ spec:
           ports:
           - containerPort: 5050
           readinessProbe:
+            timeoutSeconds: 60
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:5050"]
           livenessProbe:
+            timeoutSeconds: 60
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:5050"]
           env:

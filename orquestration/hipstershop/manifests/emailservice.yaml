@@ -26,10 +26,12 @@ spec:
           value: "1"
         readinessProbe:
           periodSeconds: 5
+          timeoutSeconds: 60
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:8080"]
         livenessProbe:
           periodSeconds: 5
+          timeoutSeconds: 60
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:8080"]
         # resources:

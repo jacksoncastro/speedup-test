@@ -36,6 +36,11 @@ public final class HipersterHelper {
 
 	public static void virtualService(float timeout, String exclude) {
 
+		if ((timeout * 1000) < 1) {
+			logger.info("Timeout duration must be greater than 1ms");
+			return;
+		}
+
 		String format = String.format(FORMAT_SECONDS, timeout);
 
 		String command;
@@ -50,6 +55,12 @@ public final class HipersterHelper {
 	}
 
 	public static void virtualServiceOnly(float timeout, String target) {
+
+		if ((timeout * 1000) < 1) {
+			logger.info("Timeout duration must be greater than 1ms");
+			return;
+		}
+
 		String format = String.format(FORMAT_SECONDS, timeout);
 		logger.info("Apply {} in service {}", format, target);
 		String command = String.format("./virtual-service.sh --delay=\"%s\" --only=\"%s\" | /usr/local/bin/kubectl apply -f -", format, target);

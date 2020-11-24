@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: speedup-test
-        image: jackvasc/speedup-test:latest
+        image: jackvasc/speedup-test:1.0.0
         volumeMounts:
         - name: speedup-test-config
           mountPath: /home/speedup-test/.kube/config

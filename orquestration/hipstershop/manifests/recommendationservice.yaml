@@ -19,14 +19,14 @@ spec:
         - containerPort: 8080
         readinessProbe:
           periodSeconds: 5
-          timeoutSeconds: 20
+          timeoutSeconds: 60
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:8080", "-connect-timeout", "5000ms", "-rpc-timeout", "5000ms"]
+            command: ["/bin/grpc_health_probe", "-addr=:8080", "-connect-timeout", "60000ms", "-rpc-timeout", "60000ms"]
         livenessProbe:
           periodSeconds: 5
-          timeoutSeconds: 20
+          timeoutSeconds: 60
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:8080", "-connect-timeout", "5000ms", "-rpc-timeout", "5000ms"]
+            command: ["/bin/grpc_health_probe", "-addr=:8080", "-connect-timeout", "60000ms", "-rpc-timeout", "60000ms"]
         env:
         - name: PORT
           value: "8080"
