@@ -40,10 +40,11 @@ const products = [
 
 const success = response => response.status === 200;
 
-const headers = {
+const params = {
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
-    }
+    },
+    timeout: 200000
 };
 
 function addSessionData(session, response) {
@@ -113,7 +114,7 @@ function endSession(session) {
 
 function index(session) {
 
-    let response = http.get(host + '/');
+    let response = http.get(host + '/', params);
 
     addSessionData(session, response);
 
@@ -127,7 +128,7 @@ function setCurrency(session) {
     const data = {
         currency_code: currency
     };
-    const response = http.post(host + '/setCurrency', data, headers);
+    const response = http.post(host + '/setCurrency', data, params);
 
     addSessionData(session, response);
 
@@ -138,7 +139,7 @@ function setCurrency(session) {
 
 function browseProduct(session) {
     const product = random(products);
-    let response = http.get(host + '/product/' + product);
+    let response = http.get(host + '/product/' + product, params);
 
     addSessionData(session, response);
 
@@ -150,7 +151,7 @@ function browseProduct(session) {
 function addToCart(session) {
     // browseProduct
     const product = random(products);
-    let responseBrowse = http.get(host + '/product/' + product);
+    let responseBrowse = http.get(host + '/product/' + product, params);
 
     addSessionData(session, responseBrowse);
 
@@ -164,7 +165,7 @@ function addToCart(session) {
         'product_id': product,
         'quantity': quantity
     };
-    const responseAdd = http.post(host + '/cart', data, headers);
+    const responseAdd = http.post(host + '/cart', data, params);
 
     addSessionData(session, responseAdd);
 
@@ -174,7 +175,7 @@ function addToCart(session) {
 }
 
 function viewCart(session) {
-    let response = http.get(host + '/cart');
+    let response = http.get(host + '/cart', params);
 
     addSessionData(session, response);
 
@@ -198,7 +199,7 @@ function checkout(session) {
         'credit_card_cvv': '672'
     };
 
-    const response = http.post(host + '/cart/checkout', data, headers);
+    const response = http.post(host + '/cart/checkout', data, params);
 
     addSessionData(session, response);
 
