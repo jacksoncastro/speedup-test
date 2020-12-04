@@ -1,7 +1,7 @@
 [
     {
         "name": "avg",
-        "query": "avg( istio_request_duration_milliseconds_sum{reporter=\"destination\",response_code=\"200\",destination_app!=\"unknown\"} / istio_request_duration_milliseconds_count{reporter=\"destination\",response_code=\"200\",destination_app!=\"unknown\"} ) by (source_app,destination_app)",
+        "query": "avg( istio_request_duration_milliseconds_sum{reporter=\"source\",response_code=~\"200|0\",destination_service!=\"unknown\"} / istio_request_duration_milliseconds_count{reporter=\"source\",response_code=~\"200|0\",destination_service!=\"unknown\"} ) by (source_app,destination_service)",
         "sort": [
             "source_app",
             "destination_app"
@@ -14,7 +14,7 @@
     },
     {
         "name": "count",
-        "query": "sum by (source_app,destination_app) (istio_requests_total{reporter=\"destination\",response_code=\"200\",destination_app!=\"unknown\"})",
+        "query": "sum by (source_app,destination_service) (istio_requests_total{reporter=\"destination\",response_code=~\"200|0\", destination_service != \"unknown\" })",
         "sort": [
             "source_app",
             "destination_app"
