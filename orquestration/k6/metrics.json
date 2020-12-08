@@ -4,11 +4,11 @@
         "query": "avg( istio_request_duration_milliseconds_sum{reporter=\"source\",response_code=~\"200|0\",destination_service!=\"unknown\"} / istio_request_duration_milliseconds_count{reporter=\"source\",response_code=~\"200|0\",destination_service!=\"unknown\"} ) by (source_app,destination_service)",
         "sort": [
             "source_app",
-            "destination_app"
+            "destination_service"
         ],
         "columns": [
             "source_app",
-            "destination_app",
+            "destination_service",
             "value"
         ]
     },
@@ -17,11 +17,11 @@
         "query": "sum by (source_app,destination_service) (istio_requests_total{reporter=\"destination\",response_code=~\"200|0\", destination_service != \"unknown\" })",
         "sort": [
             "source_app",
-            "destination_app"
+            "destination_service"
         ],
         "columns": [
             "source_app",
-            "destination_app",
+            "destination_service",
             "value"
         ]
     }   
