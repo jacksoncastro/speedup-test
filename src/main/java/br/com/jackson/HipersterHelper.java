@@ -105,7 +105,7 @@ public final class HipersterHelper {
 		FuntionHelper.exec("/usr/local/bin/kustomize build k6/ | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", Constants.WORKER_DIR);
 		logger.info("Deleted test");
 	}
-	
+
 	private static void deleteVirtualServices() {
 		logger.info("Deleting virtual services...");
 		FuntionHelper.exec("./virtual-service.sh --delay=0s | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", Constants.WORKER_DIR_SCRIPT);
@@ -119,7 +119,7 @@ public final class HipersterHelper {
 		FuntionHelper.exec("/usr/local/bin/kustomize build hipstershop | /usr/local/bin/kubectl delete --ignore-not-found=true -f -", Constants.WORKER_DIR);
 
 		List<String> output = FuntionHelper.exec("/usr/local/bin/kubectl get po -l group=app -o NAME", Constants.WORKER_DIR);
-		
+
 		if (output != null && !output.isEmpty()) {
 			logger.info("Wait delete...");
 			FuntionHelper.exec("/usr/local/bin/kubectl wait po -l group=app --for=delete --timeout=1800s", Constants.WORKER_DIR);

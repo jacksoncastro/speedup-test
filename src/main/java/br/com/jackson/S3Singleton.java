@@ -12,6 +12,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.mediaconnect.model.NotFoundException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public final class S3Singleton {
@@ -84,7 +85,8 @@ public final class S3Singleton {
 		String regex = String.format(FORMAT_REGEX_ROUND, round);
 
 		List<S3ObjectSummary> summaries = getAmazonS3()
-				.listObjectsV2(BUCKET_NAME, prefix + "/").getObjectSummaries();
+				.listObjectsV2(BUCKET_NAME, prefix + "/")
+				.getObjectSummaries();
 
 		summaries.stream()
 			.map(S3ObjectSummary::getKey)
@@ -93,5 +95,13 @@ public final class S3Singleton {
 				logger.info("Deleting file {}", key);
 				getAmazonS3().deleteObject(BUCKET_NAME, key);
 			});
+	}
+
+	public static void deleteFolder(String folder) {
+
+		ObjectListing objects = getAmazonS3().listObjects(BUCKET_NAME, folder + "/");
+		for (S3ObjectSummary objectSummary : objects.getObjectSummaries())  {
+			getAmazonS3().deleteObject(BUCKET_NAME, objectSummary.getKey());
+		}
 	}
 }

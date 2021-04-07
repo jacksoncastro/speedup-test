@@ -15,16 +15,19 @@ public class Scenarie implements Serializable {
 
 	private int rounds;
 
+	private boolean forceRemoveFolder;
+
 	private List<Test> tests;
 
 	public Scenarie() {
 	}
 
-	public Scenarie(String title, int users, int iterations, int rounds, List<Test> tests) {
+	public Scenarie(String title, int users, int iterations, int rounds, boolean forceRemoveFolder, List<Test> tests) {
 		this.title = title;
 		this.users = users;
 		this.iterations = iterations;
 		this.rounds = rounds;
+		this.forceRemoveFolder = forceRemoveFolder;
 		this.tests = tests;
 	}
 
@@ -58,6 +61,14 @@ public class Scenarie implements Serializable {
 
 	public void setRounds(int rounds) {
 		this.rounds = rounds;
+	}
+
+	public boolean isForceRemoveFolder() {
+		return forceRemoveFolder;
+	}
+
+	public void setForceRemoveFolder(boolean forceRemoveFolder) {
+		this.forceRemoveFolder = forceRemoveFolder;
 	}
 
 	public List<Test> getTests() {

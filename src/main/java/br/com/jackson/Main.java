@@ -54,6 +54,11 @@ public class Main {
 
 	private void runScenarie(Scenarie scenarie) {
 		try {
+			if (scenarie.isForceRemoveFolder()) {
+				logger.info("Removing folder {}", scenarie.getTitle());
+				S3Singleton.deleteFolder(scenarie.getTitle());
+				logger.info("Removed folder {}", scenarie.getTitle());
+			}
 			for (int round = 1; round <= scenarie.getRounds(); round++) {
 				logger.info("Begin test number {}", round);
 				test(scenarie, round);
@@ -138,7 +143,7 @@ public class Main {
 		if (test.getVirtualServices() != null && !test.getVirtualServices().isEmpty()) {
 			test.getVirtualServices().forEach(virtualService -> {
 				if (virtualService.getTarget() != null) {
-					if (virtualService.isAllButTarget()) {					
+					if (virtualService.isAllButTarget()) {
 						HipersterHelper.virtualService(virtualService.getDelay(), virtualService.getTarget());
 					} else {
 						HipersterHelper.virtualServiceOnly(virtualService.getDelay(), virtualService.getTarget());

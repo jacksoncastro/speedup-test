@@ -28,7 +28,7 @@ USER $USER
 
 RUN mkdir $HOME/app
 WORKDIR $HOME/app
+COPY /target/dependency-jars /run/dependency-jars
+ADD /target/${JAR_FILE} /run/app.jar
 
-ADD /target/${JAR_FILE} app.jar
-
-ENTRYPOINT java -jar app.jar
+ENTRYPOINT java -jar /run/app.jar
