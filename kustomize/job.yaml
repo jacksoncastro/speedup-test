@@ -10,10 +10,11 @@ spec:
     spec:
       containers:
       - name: speedup-test
-        image: jackvasc/speedup-test:1.0.0
+        # image: jackvasc/speedup-test:1.0.0
+        image: jackvasc/speedup-test
         volumeMounts:
         - name: speedup-test-config
-          mountPath: /home/speedup-test/.kube/config
+          mountPath: /home/speedup/.kube/config
           subPath: config
         - name: speedup-test-config
           mountPath: /orquestration/scenaries.yml

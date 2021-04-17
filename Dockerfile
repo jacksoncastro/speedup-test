@@ -3,7 +3,7 @@ FROM openjdk:8-jdk-alpine3.9
 LABEL maintainer="jack.vasc@yahoo.com.br"
 
 ARG JAR_FILE
-ARG USER=speedup-test
+ARG USER=speedup
 
 ENV HOME /home/$USER
 
@@ -22,13 +22,12 @@ tar -xvf /tmp/kustomize.tar.gz -C /usr/local/bin && \
 chmod +x /usr/local/bin/kubectl /usr/local/bin && \
 rm /tmp/kustomize.tar.gz
 
-COPY --chown=$USER /orquestration /orquestration
-
 USER $USER
 
 RUN mkdir $HOME/app
 WORKDIR $HOME/app
 COPY /target/dependency-jars /run/dependency-jars
 ADD /target/${JAR_FILE} /run/app.jar
+COPY --chown=$USER /orquestration /orquestration
 
 ENTRYPOINT java -jar /run/app.jar
