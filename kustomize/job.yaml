@@ -17,8 +17,8 @@ spec:
           mountPath: /home/speedup/.kube/config
           subPath: config
         - name: speedup-test-config
-          mountPath: /orquestration/scenaries.yml
-          subPath: scenaries
+          mountPath: /orquestration/scenarios.yml
+          subPath: scenarios
         env:
           - name: ACCESS_KEY
             valueFrom:
@@ -30,8 +30,8 @@ spec:
               configMapKeyRef:
                 name: aws-credentials
                 key: SECRET_KEY
-          - name: SCENARIES_FILE
-            value: /orquestration/scenaries.yml
+          - name: SCENARIOS_FILE
+            value: /orquestration/scenarios.yml
       restartPolicy: Never
       volumes:
       - name: speedup-test-config

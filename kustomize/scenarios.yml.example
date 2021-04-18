@@ -1,4 +1,4 @@
-scenaries:
+scenarios:
 - title: example
   users: 100
   iterations: 100

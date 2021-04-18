@@ -1,4 +1,4 @@
-scenaries:
+scenarios:
 - title: frontend-50-0075
   users: 50
   iterations: 50

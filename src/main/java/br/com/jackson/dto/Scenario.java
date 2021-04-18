@@ -3,7 +3,7 @@ package br.com.jackson.dto;
 import java.io.Serializable;
 import java.util.List;
 
-public class Scenarie implements Serializable {
+public class Scenario implements Serializable {
 
 	private static final long serialVersionUID = 636940468340453812L;
 
@@ -19,10 +19,10 @@ public class Scenarie implements Serializable {
 
 	private List<Test> tests;
 
-	public Scenarie() {
+	public Scenario() {
 	}
 
-	public Scenarie(String title, int users, int iterations, int rounds, boolean forceRemoveFolder, List<Test> tests) {
+	public Scenario(String title, int users, int iterations, int rounds, boolean forceRemoveFolder, List<Test> tests) {
 		this.title = title;
 		this.users = users;
 		this.iterations = iterations;

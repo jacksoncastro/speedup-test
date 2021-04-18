@@ -1,0 +1,793 @@
+scenarios:
+  - title: productcatalog-50-USERS-50-ITER-100-EXL-50-PEG
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+  - title: productcatalog-100-USERS-100-ITER-100-EXL-50-PEG
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+  - title: productcatalog-150-USERS-150-ITER-100-EXL-50-PEG
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.05
+        allButTarget: true
+  - title: productcatalog-50-USERS-50-ITER-100-EXL-100-PEG
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+  - title: productcatalog-100-USERS-100-ITER-100-EXL-100-PEG
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+  - title: productcatalog-150-USERS-150-ITER-100-EXL-100-PEG
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+  - title: productcatalog-50-USERS-50-ITER-100-EXL-50-PEG-modern
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+  - title: productcatalog-100-USERS-100-ITER-100-EXL-50-PEG-modern
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+  - title: productcatalog-150-USERS-150-ITER-100-EXL-50-PEG-modern
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.05
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.15
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.15
+        allButTarget: true
+  - title: productcatalog-50-USERS-50-ITER-100-EXL-100-PEG-modern
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+  - title: productcatalog-100-USERS-100-ITER-100-EXL-100-PEG-modern
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+  - title: productcatalog-150-USERS-150-ITER-100-EXL-100-PEG-modern
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0
+      - target: productcatalogservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.2
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 0.1
+      - target: productcatalogservice
+        delay: 0.2
+        allButTarget: true
+  - title: recommendation-50-USERS-50-ITER-100-EXL-50-PEG
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+  - title: recommendation-100-USERS-100-ITER-100-EXL-50-PEG
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+  - title: recommendation-150-USERS-150-ITER-100-EXL-50-PEG
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.05
+        allButTarget: true
+  - title: recommendation-50-USERS-50-ITER-100-EXL-100-PEG
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+  - title: recommendation-100-USERS-100-ITER-100-EXL-100-PEG
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+  - title: recommendation-150-USERS-150-ITER-100-EXL-100-PEG
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+  - title: recommendation-50-USERS-50-ITER-100-EXL-50-PEG-modern
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+  - title: recommendation-100-USERS-100-ITER-100-EXL-50-PEG-modern
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+  - title: recommendation-150-USERS-150-ITER-100-EXL-50-PEG-modern
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.05
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.15
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.15
+        allButTarget: true
+  - title: recommendation-50-USERS-50-ITER-100-EXL-100-PEG-modern
+    users: 50
+    iterations: 50
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true
+  - title: recommendation-100-USERS-100-ITER-100-EXL-100-PEG-modern
+    users: 100
+    iterations: 100
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true
+  - title: recommendation-150-USERS-150-ITER-100-EXL-100-PEG-modern
+    users: 150
+    iterations: 150
+    rounds: 5
+    tests:
+    - name: NT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0
+      - target: recommendationservice
+        delay: 0.1
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.2
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: recommendationservice
+        delay: 0.1
+      - target: recommendationservice
+        delay: 0.2
+        allButTarget: true

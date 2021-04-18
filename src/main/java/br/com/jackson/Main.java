@@ -12,8 +12,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
-import br.com.jackson.dto.Scenarie;
-import br.com.jackson.dto.Scenaries;
+import br.com.jackson.dto.Scenario;
+import br.com.jackson.dto.Scenarios;
 import br.com.jackson.dto.Summary;
 import br.com.jackson.dto.Test;
 
@@ -28,7 +28,7 @@ public class Main {
 	private static final String ROLE_ITERATION = "iteration";
 	private static final String ROLE_RPS = "rps";
 
-	private static final String SCENARIES_FILE_DEFAULT = "kustomize/scenaries.yml";
+	private static final String SCENARIOS_FILE_DEFAULT = "kustomize/scenarios.yml";
 
 	public Main() throws Exception {
 	}
@@ -40,56 +40,56 @@ public class Main {
 
 	private void init() throws Exception {
 
-		String path = System.getenv().getOrDefault(Constants.ENV_SCENARIES_FILE, SCENARIES_FILE_DEFAULT);
+		String path = System.getenv().getOrDefault(Constants.ENV_SCENARIOS_FILE, SCENARIOS_FILE_DEFAULT);
 
 		File file = new File(path);
 
 		ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
-		Scenaries scenaries = objectMapper.readValue(file, Scenaries.class);
+		Scenarios scenarios = objectMapper.readValue(file, Scenarios.class);
 
-		scenaries.getScenaries().forEach(this::runScenarie);
+		scenarios.getScenarios().forEach(this::runScenario);
 
 	}
 
-	private void runScenarie(Scenarie scenarie) {
+	private void runScenario(Scenario scenario) {
 		try {
-			if (scenarie.isForceRemoveFolder()) {
-				logger.info("Removing folder {}", scenarie.getTitle());
-				S3Singleton.deleteFolder(scenarie.getTitle());
-				logger.info("Removed folder {}", scenarie.getTitle());
+			if (scenario.isForceRemoveFolder()) {
+				logger.info("Removing folder {}", scenario.getTitle());
+				S3Singleton.deleteFolder(scenario.getTitle());
+				logger.info("Removed folder {}", scenario.getTitle());
 			}
-			for (int round = 1; round <= scenarie.getRounds(); round++) {
+			for (int round = 1; round <= scenario.getRounds(); round++) {
 				logger.info("Begin test number {}", round);
-				test(scenarie, round);
+				test(scenario, round);
 				logger.info("Ending test number {}", round);
 			}
 			HipersterHelper.clean();
 		} catch (Exception e) {
-			logger.error("Error in scenarie:", e);
+			logger.error("Error in scenario:", e);
 		}
 	}
 
-	private void test(Scenarie scenarie, int round) throws Exception {
-		if (scenarie.getTitle() == null || scenarie.getTitle().isEmpty()) {
+	private void test(Scenario scenario, int round) throws Exception {
+		if (scenario.getTitle() == null || scenario.getTitle().isEmpty()) {
 			throw new Exception("Tittle cannot be empty");
 		}
 
-		String[] testsName = this.getTestsName(scenarie.getTests());
+		String[] testsName = this.getTestsName(scenario.getTests());
 
-		if (existsRound(scenarie.getTitle(), round, testsName)) {
-			logger.info("Skipped scenarie: {} and round: {}", scenarie.getTitle(), round);
+		if (existsRound(scenario.getTitle(), round, testsName)) {
+			logger.info("Skipped scenario: {} and round: {}", scenario.getTitle(), round);
 			return;
 		}
 
-		S3Singleton.deleteRound(scenarie.getTitle(), round);
+		S3Singleton.deleteRound(scenario.getTitle(), round);
 
-		scenarie.getTests().forEach(test -> {
+		scenario.getTests().forEach(test -> {
 			HipersterHelper.clean();
 			HipersterHelper.createApp();
 			applyVirtualServices(test);
 			stabilization();
-			runK6(scenarie, test, round);
+			runK6(scenario, test, round);
 		});
 	}
 
@@ -116,10 +116,10 @@ public class Main {
 		return true;
 	}
 
-	private void runK6(Scenarie scenarie, Test test, int round) {
+	private void runK6(Scenario scenario, Test test, int round) {
 
 		if (test.getLimite() != null) {
-			Summary summary = getSummary(scenarie.getTitle(), test.getLimite().getFrom(), round);
+			Summary summary = getSummary(scenario.getTitle(), test.getLimite().getFrom(), round);
 
 			List<String> roles = Arrays.asList(test.getLimite().getRoles());
 
@@ -133,9 +133,9 @@ public class Main {
 				rps = (int) Math.ceil(summary.getRps());
 			}
 
-			HipersterHelper.runK6(scenarie, test.getName(), round, iteration, rps);
+			HipersterHelper.runK6(scenario, test.getName(), round, iteration, rps);
 		} else {
-			HipersterHelper.runK6(scenarie, test.getName(), round);
+			HipersterHelper.runK6(scenario, test.getName(), round);
 		}
 	}
 

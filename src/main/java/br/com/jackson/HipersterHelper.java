@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.jackson.dto.Scenarie;
+import br.com.jackson.dto.Scenario;
 
 public final class HipersterHelper {
 
@@ -73,20 +73,20 @@ public final class HipersterHelper {
 		deleteApp();
 	}
 
-	public static void runK6(Scenarie scenarie, String name, int round) {
-		runK6(scenarie, name, round, null, null);
+	public static void runK6(Scenario scenario, String name, int round) {
+		runK6(scenario, name, round, null, null);
 	}
 
-	public static void runK6(Scenarie scenarie, String name, int round, Integer minDurationIteration, Integer rps) {
+	public static void runK6(Scenario scenario, String name, int round, Integer minDurationIteration, Integer rps) {
 
-		String folder = scenarie.getTitle() + "/" + name;
+		String folder = scenario.getTitle() + "/" + name;
 
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("TITLE", folder);
 		parameters.put("ROUND", round);
 		parameters.put("MIN_DURATION_ITERATION", minDurationIteration);
-		parameters.put("VUS", scenarie.getUsers());
-		parameters.put("ITERATIONS", scenarie.getIterations());
+		parameters.put("VUS", scenario.getUsers());
+		parameters.put("ITERATIONS", scenario.getIterations());
 		parameters.put("RPS", rps);
 
 		setEnvironmentK6(parameters);

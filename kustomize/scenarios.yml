@@ -1,0 +1,11 @@
+scenarios:
+  - title: productcatalog-apagar
+    users: 1
+    iterations: 1
+    rounds: 1
+    forceRemoveFolder: true
+    tests:
+    - name: NT
+      # virtualServices:
+      #   - target: productcatalogservice
+      #     delay: 1
