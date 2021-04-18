@@ -98,6 +98,10 @@ public final class HipersterHelper {
 		logger.info("Wait test {}", name);
 		FuntionHelper.exec("/usr/local/bin/kubectl -n k6 wait job/k6 --for=condition=complete --timeout=1800s", Constants.WORKER_DIR);
 		logger.info("Fineshed test {}", name);
+
+		logger.info("Print result of test {} >>>>>>>>>>>> ", name);
+		FuntionHelper.exec("/usr/local/bin/kubectl -n k6 logs job/k6", Constants.WORKER_DIR);
+		logger.info("Print result of test {} <<<<<<<<<<<< ", name);
 	}
 
 	private static void deleteTest() {
