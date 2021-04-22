@@ -69,9 +69,9 @@ public final class FuntionHelper {
 			return;
 		}
 
-		for (int i=0; i < closeables.length; i++) {
+		for (Closeable closeable : closeables) {
 			try {
-				closeables[i].close();
+				closeable.close();
 			} catch (Exception e) {
 				// omitting error
 			}
