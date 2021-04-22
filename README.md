@@ -12,4 +12,3 @@ kustomize build kustomize/ | kubectl apply -f -
 mvn -DskipTests clean package dockerfile:build && \
     docker push jackvasc/speedup-test
 ```
-
