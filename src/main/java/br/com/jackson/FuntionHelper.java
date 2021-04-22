@@ -16,6 +16,9 @@ public final class FuntionHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(FuntionHelper.class);
 
+	private static final String ENV_PATH_KEY = "PATH";
+	private static final String ENV_PATH_VALUE = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+
 	private FuntionHelper() {
 	}
 
@@ -34,6 +37,7 @@ public final class FuntionHelper {
 
 		try {
 			ProcessBuilder builder = new ProcessBuilder();
+			builder.environment().put(ENV_PATH_KEY, ENV_PATH_VALUE);
 			builder.command("bash", "-c", command);
 			builder.directory(new File(workdir));
 			builder.redirectErrorStream(true);

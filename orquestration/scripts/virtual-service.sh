@@ -111,7 +111,7 @@ getAllServices() {
 
     FILTER=$1
 
-    CMD=(/usr/local/bin/kubectl get svc -o NAME)
+    CMD=(kubectl get svc -o NAME)
     CMD+=(\|)
     CMD+=(grep -v kubernetes)
 
@@ -155,7 +155,7 @@ build() {
         echo
         echo '---'
         echo
-        BASE="/usr/local/bin/kubectl get $i";
+        BASE="kubectl get $i";
         NAME=$($BASE -o jsonpath='{.metadata.name}');
         PORT=$($BASE -o jsonpath='{.spec.ports[0].port}');
         export NAME
