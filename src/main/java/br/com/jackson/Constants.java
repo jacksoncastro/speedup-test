@@ -1,9 +1,10 @@
 package br.com.jackson;
 
-public final class Constants {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	private Constants() {
-	}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Constants {
 
 	public static final String ENV_ACCESS_KEY = "ACCESS_KEY";
 	public static final String ENV_SECRET_KEY = "SECRET_KEY";

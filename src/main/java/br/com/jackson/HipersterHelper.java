@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import br.com.jackson.dto.Scenario;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HipersterHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(HipersterHelper.class);
 
 	private static final String FORMAT_SECONDS = "%ss";
-
-	private HipersterHelper() {
-	}
 
 	public static void createApp() {
 		logger.info("Create project");

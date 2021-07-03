@@ -12,15 +12,16 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FuntionHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(FuntionHelper.class);
 
 	private static final String ENV_PATH_KEY = "PATH";
 	private static final String ENV_PATH_VALUE = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
-
-	private FuntionHelper() {
-	}
 
 	public static void sleep(int timeout) {
 		try {

@@ -15,6 +15,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class S3Singleton {
 
 	private static final Logger logger = LoggerFactory.getLogger(S3Singleton.class);
@@ -24,10 +28,6 @@ public final class S3Singleton {
 	private static final String FORMAT_REGEX_ROUND = ".*\\/[a-zA-Z]+\\+?\\/[a-z]+-%d\\.[a-z]{3,4}";
 
 	private static AmazonS3 amazonS3;
-
-	private S3Singleton() {
-	}
-
 
 	private static AmazonS3 getAmazonS3() {
 

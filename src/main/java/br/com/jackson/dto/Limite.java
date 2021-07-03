@@ -2,6 +2,13 @@ package br.com.jackson.dto;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Limite implements Serializable {
 
 	private static final long serialVersionUID = 9088566429007733911L;
@@ -10,27 +17,4 @@ public class Limite implements Serializable {
 
 	private String[] roles;
 
-	public Limite() {
-	}
-
-	public Limite(String from, String[] roles) {
-		this.from = from;
-		this.roles = roles;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-
-	public void setFrom(String from) {
-		this.from = from;
-	}
-
-	public String[] getRoles() {
-		return roles;
-	}
-
-	public void setRoles(String[] roles) {
-		this.roles = roles;
-	}
 }

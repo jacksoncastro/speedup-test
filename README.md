@@ -4,11 +4,18 @@
 mvn -DskipTests clean package dockerfile:build
 docker run -it --rm jackvasc/speedup-test
 docker push jackvasc/speedup-test
-kustomize build kustomize/ | kubectl delete --ignore-not-found=true -f -
-kustomize build kustomize/ | kubectl apply -f -
+
+reset && \
+    kustomize build kustomize/ | kubectl delete --ignore-not-found=true -f - && \
+    kustomize build kustomize/ | kubectl apply -f -
 ```
 
 ```bash
+
+reset && kubectl -n speedup-test logs -f job/speedup-test
+
+kubectl -n istio-system delete po -l app=jaeger
+
 mvn -DskipTests clean package dockerfile:build && \
     docker push jackvasc/speedup-test
 ```

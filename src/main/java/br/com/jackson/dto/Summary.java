@@ -1,21 +1,16 @@
 package br.com.jackson.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Summary {
 
-	private final float iteration;
+	private float iteration;
 
-	private final float rps;
+	private float rps;
 
-	public Summary(float iteration, float rps) {
-		this.iteration = iteration;
-		this.rps = rps;
-	}
-
-	public float getIteration() {
-		return iteration;
-	}
-
-	public float getRps() {
-		return rps;
-	}
 }
