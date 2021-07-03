@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.jayway.jsonpath.DocumentContext;
@@ -16,10 +13,10 @@ import br.com.jackson.dto.Scenario;
 import br.com.jackson.dto.Scenarios;
 import br.com.jackson.dto.Summary;
 import br.com.jackson.dto.Test;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Main {
-
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private static final String JSON_PATH_HTTP_REQS_RATE = "metrics.http_reqs.rate";
 	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
@@ -55,18 +52,18 @@ public class Main {
 	private void runScenario(Scenario scenario) {
 		try {
 			if (scenario.isForceRemoveFolder()) {
-				logger.info("Removing folder {}", scenario.getTitle());
+				log.info("Removing folder {}", scenario.getTitle());
 				S3Singleton.deleteFolder(scenario.getTitle());
-				logger.info("Removed folder {}", scenario.getTitle());
+				log.info("Removed folder {}", scenario.getTitle());
 			}
 			for (int round = 1; round <= scenario.getRounds(); round++) {
-				logger.info("Begin test number {}", round);
+				log.info("Begin test number {}", round);
 				test(scenario, round);
-				logger.info("Ending test number {}", round);
+				log.info("Ending test number {}", round);
 			}
 			HipersterHelper.clean();
 		} catch (Exception e) {
-			logger.error("Error in scenario:", e);
+			log.error("Error in scenario:", e);
 		}
 	}
 
@@ -78,7 +75,7 @@ public class Main {
 		String[] testsName = this.getTestsName(scenario.getTests());
 
 		if (existsRound(scenario.getTitle(), round, testsName)) {
-			logger.info("Skipped scenario: {} and round: {}", scenario.getTitle(), round);
+			log.info("Skipped scenario: {} and round: {}", scenario.getTitle(), round);
 			return;
 		}
 
@@ -169,8 +166,8 @@ public class Main {
 	}
 
 	private void stabilization() {
-		logger.info("Waiting for stabilization");
+		log.info("Waiting for stabilization");
 		FuntionHelper.sleep(20);
-		logger.info("Done!");
+		log.info("Done!");
 	}
 }

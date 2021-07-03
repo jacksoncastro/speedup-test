@@ -2,9 +2,6 @@ package br.com.jackson;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -17,11 +14,11 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class S3Singleton {
-
-	private static final Logger logger = LoggerFactory.getLogger(S3Singleton.class);
 
 	private static final String BUCKET_NAME = "hipstershop-k6";
 
@@ -92,7 +89,7 @@ public final class S3Singleton {
 			.map(S3ObjectSummary::getKey)
 			.filter(key -> key.matches(regex))
 			.forEach(key -> {
-				logger.info("Deleting file {}", key);
+				log.info("Deleting file {}", key);
 				getAmazonS3().deleteObject(BUCKET_NAME, key);
 			});
 	}

@@ -9,16 +9,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FuntionHelper {
-
-	private static final Logger logger = LoggerFactory.getLogger(FuntionHelper.class);
 
 	private static final String ENV_PATH_KEY = "PATH";
 	private static final String ENV_PATH_VALUE = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
@@ -27,7 +24,7 @@ public final class FuntionHelper {
 		try {
 			TimeUnit.SECONDS.sleep(timeout);
 		} catch (InterruptedException e) {
-			logger.error("Error in sleep", e);
+			log.error("Error in sleep", e);
 		}
 	}
 
@@ -48,7 +45,7 @@ public final class FuntionHelper {
 
 			List<String> output = bufferedReader
 					.lines()
-					.peek(FuntionHelper.logger::info)
+					.peek(FuntionHelper.log::info)
 					.collect(Collectors.toList());
 
 			int code = process.waitFor();
