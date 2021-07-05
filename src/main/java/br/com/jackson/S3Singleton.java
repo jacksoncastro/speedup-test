@@ -40,10 +40,10 @@ public final class S3Singleton {
 
 	private static AmazonS3 buildAmazonS3() {
 
-		String ACCESS_KEY = System.getenv(Constants.ENV_ACCESS_KEY);
-		String SECRET_KEY = System.getenv(Constants.ENV_SECRET_KEY);
+		String accessKey = System.getenv(Constants.ENV_ACCESS_KEY);
+		String secretKey = System.getenv(Constants.ENV_SECRET_KEY);
 
-		AWSCredentials credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+		AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
 		AmazonS3 amazonS3 = AmazonS3ClientBuilder
 				  .standard()

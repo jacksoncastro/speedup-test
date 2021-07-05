@@ -88,7 +88,7 @@ function iteration() {
     request(index, 1, session);
     request(setCurrency, 1, session);
     request(browseProduct, 5, session);
-    request(addToCart, 1, session);
+    request(browseAndAddToCart, 1, session);
     request(viewCart, 1, session);
     request(checkout, 1, session);
 
@@ -148,7 +148,7 @@ function browseProduct(session) {
     });
 }
 
-function addToCart(session) {
+function browseAndAddToCart(session) {
     // browseProduct
     const product = random(products);
     let responseBrowse = http.get(host + '/product/' + product, params);
@@ -159,7 +159,7 @@ function addToCart(session) {
         'browseProduct': success
     });
 
-    // addToCart
+    // browseAndAddToCart
     const quantity = random(quantities);
     const data = {
         'product_id': product,
@@ -170,7 +170,7 @@ function addToCart(session) {
     addSessionData(session, responseAdd);
 
     check(responseAdd, {
-        'addToCart': success
+        'browseAndAddToCart': success
     });
 }
 
@@ -185,7 +185,7 @@ function viewCart(session) {
 }
 
 function checkout(session) {
-    addToCart(session);
+    browseAndAddToCart(session);
     const data = {
         'email': 'someone@example.com',
         'street_address': '1600 Amphitheatre Parkway',
