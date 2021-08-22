@@ -20,11 +20,7 @@ public final class HipersterHelper {
 		log.info("Create project");
 		FuntionHelper.exec("kustomize build hipstershop | kubectl apply -f -", Constants.WORKER_DIR);
 
-		log.info("Wait create...");
-		FuntionHelper.sleep(1);
-
-		FuntionHelper.exec("kubectl wait po -l group=app --for=condition=ready --timeout=1800s", Constants.WORKER_DIR);
-		log.info("Created");
+		waitCreate();
 	}
 
 	public static void virtualService(float timeout) {
@@ -99,6 +95,23 @@ public final class HipersterHelper {
 		log.info("Print result of test {} >>>>>>>>>>>> ", name);
 		FuntionHelper.exec("kubectl -n k6 logs job/k6", Constants.WORKER_DIR);
 		log.info("Print result of test {} <<<<<<<<<<<< ", name);
+	}
+
+	public static void setImage(String deployment, String container, String name) {
+		log.info("Set custom image {} for deploy {}", name, deployment);
+		String command = String.format("kubectl -n default set image deployment/%s %s=%s", deployment, container, name);
+		FuntionHelper.exec(command, Constants.WORKER_DIR);
+		log.info("Setted custom image {}", name);
+
+		waitCreate();
+	}
+
+	private static void waitCreate() {
+		log.info("Wait create...");
+		FuntionHelper.sleep(1);
+
+		FuntionHelper.exec("kubectl wait po -l group=app --for=condition=ready --timeout=1800s", Constants.WORKER_DIR);
+		log.info("Created");
 	}
 
 	private static void deleteTest() {

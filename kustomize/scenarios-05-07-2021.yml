@@ -1,5 +1,5 @@
 scenarios:
-  - title: productcatalog-50-USERS-50-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
+  - title: productcatalog-50-USERS-50-ITER-2000-EXTRA-LATENCIA-75-PORCENTO-GANHO
     users: 50
     iterations: 50
     rounds: 10
@@ -8,28 +8,30 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.5s
-          container: server
+        delay: 0.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3.5
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3.5
         allButTarget: true
     - name: DTS
       virtualServices:
       - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3.5
         allButTarget: true
   - title: productcatalog-50-USERS-50-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
     users: 50
@@ -40,15 +42,17 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.0s
-          container: server
+        delay: 1
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
@@ -63,7 +67,7 @@ scenarios:
       - target: productcatalogservice
         delay: 3
         allButTarget: true
-  - title: productcatalog-50-USERS-50-ITER-2000-EXTRA-LATENCIA-75-PORCENTO-GANHO
+  - title: productcatalog-50-USERS-50-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
     users: 50
     iterations: 50
     rounds: 10
@@ -72,47 +76,17 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
-    - name: ATS
-      virtualServices:
-      - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_0.5s
-          container: server
-    - name: DT
-      virtualServices:
-      - target: productcatalogservice
-        delay: 3.5
-      - target: productcatalogservice
-        delay: 3.5
-        allButTarget: true
-    - name: DTS
-      virtualServices:
-      - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 3.5
+        delay: 2
         allButTarget: true
-  - title: productcatalog-100-USERS-100-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
-    users: 100
-    iterations: 100
-    rounds: 10
-    forceRemoveFolder: false
-    tests:
-    - name: NT
-      virtualServices:
-      - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.5s
-          container: server
+        delay: 1.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
@@ -126,38 +100,6 @@ scenarios:
         delay: 2
       - target: productcatalogservice
         delay: 2.5
-        allButTarget: true
-  - title: productcatalog-100-USERS-100-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
-    users: 100
-    iterations: 100
-    rounds: 10
-    forceRemoveFolder: false
-    tests:
-    - name: NT
-      virtualServices:
-      - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
-    - name: ATS
-      virtualServices:
-      - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.0s
-          container: server
-    - name: DT
-      virtualServices:
-      - target: productcatalogservice
-        delay: 3
-      - target: productcatalogservice
-        delay: 3
-        allButTarget: true
-    - name: DTS
-      virtualServices:
-      - target: productcatalogservice
-        delay: 2
-      - target: productcatalogservice
-        delay: 3
         allButTarget: true
   - title: productcatalog-100-USERS-100-ITER-2000-EXTRA-LATENCIA-75-PORCENTO-GANHO
     users: 100
@@ -168,15 +110,17 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_0.5s
-          container: server
+        delay: 0.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
@@ -191,69 +135,73 @@ scenarios:
       - target: productcatalogservice
         delay: 3.5
         allButTarget: true
-  - title: productcatalog-150-USERS-150-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
-    users: 150
-    iterations: 150
+  - title: productcatalog-100-USERS-100-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
+    users: 100
+    iterations: 100
     rounds: 10
     forceRemoveFolder: false
     tests:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.5s
-          container: server
+        delay: 1
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
         allButTarget: true
     - name: DTS
       virtualServices:
       - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
         allButTarget: true
-  - title: productcatalog-150-USERS-150-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
-    users: 150
-    iterations: 150
+  - title: productcatalog-100-USERS-100-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
+    users: 100
+    iterations: 100
     rounds: 10
     forceRemoveFolder: false
     tests:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.0s
-          container: server
+        delay: 1.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
         allButTarget: true
     - name: DTS
       virtualServices:
       - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
         allButTarget: true
   - title: productcatalog-150-USERS-150-ITER-2000-EXTRA-LATENCIA-75-PORCENTO-GANHO
     users: 150
@@ -264,15 +212,17 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_0.5s
-          container: server
+        delay: 0.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
@@ -287,69 +237,73 @@ scenarios:
       - target: productcatalogservice
         delay: 3.5
         allButTarget: true
-  - title: productcatalog-200-USERS-200-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
-    users: 200
-    iterations: 200
+  - title: productcatalog-150-USERS-150-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
+    users: 150
+    iterations: 150
     rounds: 10
     forceRemoveFolder: false
     tests:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.5s
-          container: server
+        delay: 1
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
         allButTarget: true
     - name: DTS
       virtualServices:
       - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 2.5
+        delay: 3
         allButTarget: true
-  - title: productcatalog-200-USERS-200-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
-    users: 200
-    iterations: 200
+  - title: productcatalog-150-USERS-150-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
+    users: 150
+    iterations: 150
     rounds: 10
     forceRemoveFolder: false
     tests:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_1.0s
-          container: server
+        delay: 1.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
         allButTarget: true
     - name: DTS
       virtualServices:
       - target: productcatalogservice
         delay: 2
       - target: productcatalogservice
-        delay: 3
+        delay: 2.5
         allButTarget: true
   - title: productcatalog-200-USERS-200-ITER-2000-EXTRA-LATENCIA-75-PORCENTO-GANHO
     users: 200
@@ -360,15 +314,17 @@ scenarios:
     - name: NT
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_2.0s
-          container: server
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: ATS
       virtualServices:
       - target: productcatalogservice
-        image:
-          name: jackvasc/productcatalogservice:extra_latency_0.5s
-          container: server
+        delay: 0.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
     - name: DT
       virtualServices:
       - target: productcatalogservice
@@ -382,4 +338,72 @@ scenarios:
         delay: 2
       - target: productcatalogservice
         delay: 3.5
+        allButTarget: true
+  - title: productcatalog-200-USERS-200-ITER-2000-EXTRA-LATENCIA-50-PORCENTO-GANHO
+    users: 200
+    iterations: 200
+    rounds: 10
+    forceRemoveFolder: false
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 1
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 3
+      - target: productcatalogservice
+        delay: 3
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 2
+      - target: productcatalogservice
+        delay: 3
+        allButTarget: true
+  - title: productcatalog-200-USERS-200-ITER-2000-EXTRA-LATENCIA-25-PORCENTO-GANHO
+    users: 200
+    iterations: 200
+    rounds: 10
+    forceRemoveFolder: false
+    tests:
+    - name: NT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 2
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
+    - name: ATS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 1.5
+      - target: productcatalogservice
+        delay: 2
+        allButTarget: true
+    - name: DT
+      virtualServices:
+      - target: productcatalogservice
+        delay: 2.5
+      - target: productcatalogservice
+        delay: 2.5
+        allButTarget: true
+    - name: DTS
+      virtualServices:
+      - target: productcatalogservice
+        delay: 2
+      - target: productcatalogservice
+        delay: 2.5
         allButTarget: true

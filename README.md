@@ -33,3 +33,7 @@ Create namespaces
 kubectl create ns k6
 kubectl create ns speedup-test
 ```
+
+```bash
+docker rmi $(docker images | grep -i jack | awk '{print $3}')
+```

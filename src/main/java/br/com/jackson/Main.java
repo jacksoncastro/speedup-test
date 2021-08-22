@@ -4,15 +4,18 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import com.amazonaws.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
+import br.com.jackson.dto.Image;
 import br.com.jackson.dto.Scenario;
 import br.com.jackson.dto.Scenarios;
 import br.com.jackson.dto.Summary;
 import br.com.jackson.dto.Test;
+import br.com.jackson.dto.VirtualService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -84,6 +87,7 @@ public class Main {
 		scenario.getTests().forEach(test -> {
 			HipersterHelper.clean();
 			HipersterHelper.createApp();
+			applyCustoms(test.getVirtualServices());
 			applyVirtualServices(test);
 			stabilization();
 			runK6(scenario, test, round);
@@ -134,6 +138,18 @@ public class Main {
 		} else {
 			HipersterHelper.runK6(scenario, test.getName(), round);
 		}
+	}
+
+	private void applyCustoms(List<VirtualService> virtualServices) {
+		virtualServices.forEach(virtualService -> {
+			// custom for image
+			if (virtualService.getImage() != null) {
+				Image image = virtualService.getImage();
+				if (StringUtils.hasValue(image.getName()) && StringUtils.hasValue(image.getContainer())) {
+					HipersterHelper.setImage(virtualService.getTarget(), image.getContainer(), image.getName());
+				}
+			}
+		});
 	}
 
 	private void applyVirtualServices(Test test) {

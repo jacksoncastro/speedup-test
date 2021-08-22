@@ -19,4 +19,6 @@ public class VirtualService implements Serializable {
 
 	private boolean allButTarget;
 
+	private Image image;
+
 }
