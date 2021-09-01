@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+resources:
+  - deploy-acmeair-authservice-java.yaml
+  - deploy-acmeair-bookingservice-java.yaml
+  - deploy-acmeair-customerservice-java.yaml
+  - deploy-acmeair-flightservice-java.yaml
+  - deploy-acmeair-mainservice-java.yaml
+  - istio/gateway.yaml
+  - istio/virtual-service/acmeair-service.yaml
+  - istio/virtual-service/auth-service.yaml
+  - istio/virtual-service/booking-service.yaml
+  - istio/virtual-service/customer-service.yaml
+  - istio/virtual-service/flight-service.yaml
+#  - istio/virtual-services.yaml
+commonLabels:
+  group: app

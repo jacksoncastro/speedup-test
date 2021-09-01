@@ -1,34 +1,39 @@
 package br.com.jackson;
 
 import java.io.File;
-import java.util.Arrays;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.amazonaws.util.StringUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
+import com.opencsv.CSVWriter;
 
+import br.com.jackson.app.App;
+import br.com.jackson.app.BluePerf;
 import br.com.jackson.dto.Image;
 import br.com.jackson.dto.Scenario;
 import br.com.jackson.dto.Scenarios;
-import br.com.jackson.dto.Summary;
 import br.com.jackson.dto.Test;
 import br.com.jackson.dto.VirtualService;
+import br.com.jackson.dto.metrics.Metrics;
+import br.com.jackson.retrofit.model.VectorResponse;
+import br.com.jackson.retrofit.model.VectorResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
 
-	private static final String JSON_PATH_HTTP_REQS_RATE = "metrics.http_reqs.rate";
-	private static final String JSON_PATH_DURATION_MED = "metrics.iteration_duration.med";
 	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
-	private static final String ROLE_ITERATION = "iteration";
-	private static final String ROLE_RPS = "rps";
-
-	private static final String SCENARIOS_FILE_DEFAULT = "kustomize/scenarios.yml";
+	private static final App app = new BluePerf();
 
 	public Main() throws Exception {
 	}
@@ -40,7 +45,7 @@ public class Main {
 
 	private void init() throws Exception {
 
-		String path = System.getenv().getOrDefault(Constants.ENV_SCENARIOS_FILE, SCENARIOS_FILE_DEFAULT);
+		String path = EnvironmentHelper.getScenariosFile();
 
 		File file = new File(path);
 
@@ -64,7 +69,7 @@ public class Main {
 				test(scenario, round);
 				log.info("Ending test number {}", round);
 			}
-			HipersterHelper.clean();
+			clean();
 		} catch (Exception e) {
 			log.error("Error in scenario:", e);
 		}
@@ -85,12 +90,15 @@ public class Main {
 		S3Singleton.deleteRound(scenario.getTitle(), round);
 
 		scenario.getTests().forEach(test -> {
-			HipersterHelper.clean();
-			HipersterHelper.createApp();
+			clean();
+			createApp();
 			applyCustoms(test.getVirtualServices());
 			applyVirtualServices(test);
-			stabilization();
-			runK6(scenario, test, round);
+			stabilization(20);
+			Path pathTest = getPathTest(scenario.getTitle(), test.getName());
+			runK6(pathTest, round);
+			stabilization(15);
+			executeMetrics(pathTest, round);
 		});
 	}
 
@@ -117,26 +125,19 @@ public class Main {
 		return true;
 	}
 
-	private void runK6(Scenario scenario, Test test, int round) {
-
-		if (test.getLimite() != null) {
-			Summary summary = getSummary(scenario.getTitle(), test.getLimite().getFrom(), round);
-
-			List<String> roles = Arrays.asList(test.getLimite().getRoles());
-
-			Integer iteration = null;
-			if (roles.contains(ROLE_ITERATION)) {
-				iteration = (int) Math.ceil(summary.getIteration());
+	private void runK6(Path pathTest, int round) {
+		try {
+			File script = new File(EnvironmentHelper.getK6ScriptFile());
+			File summary = File.createTempFile("summary-", ".json");
+			try {
+				K6Helper.runTest(script, summary);
+				Path path = pathTest.resolve("summary-" + round + ".json");
+				S3Singleton.uploadFile(path, summary);
+			} finally {
+				summary.delete();
 			}
-
-			Integer rps = null;
-			if (roles.contains(ROLE_RPS)) {
-				rps = (int) Math.ceil(summary.getRps());
-			}
-
-			HipersterHelper.runK6(scenario, test.getName(), round, iteration, rps);
-		} else {
-			HipersterHelper.runK6(scenario, test.getName(), round);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -146,7 +147,7 @@ public class Main {
 			if (virtualService.getImage() != null) {
 				Image image = virtualService.getImage();
 				if (StringUtils.hasValue(image.getName()) && StringUtils.hasValue(image.getContainer())) {
-					HipersterHelper.setImage(virtualService.getTarget(), image.getContainer(), image.getName());
+					KubernetesHelper.setImage(virtualService.getTarget(), image.getContainer(), image.getName());
 				}
 			}
 		});
@@ -155,35 +156,102 @@ public class Main {
 	private void applyVirtualServices(Test test) {
 		if (test.getVirtualServices() != null && !test.getVirtualServices().isEmpty()) {
 			test.getVirtualServices().forEach(virtualService -> {
+				if (virtualService.getDelay() == null) {
+					return;
+				}
 				if (virtualService.getTarget() != null) {
 					if (virtualService.isAllButTarget()) {
-						HipersterHelper.virtualService(virtualService.getDelay(), virtualService.getTarget());
+						IstioHelper.setFaultAllVirtualServicesButTarget(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
 					} else {
-						HipersterHelper.virtualServiceOnly(virtualService.getDelay(), virtualService.getTarget());
+						IstioHelper.setFaultVirtualService(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
 					}
 				} else {
-					HipersterHelper.virtualService(virtualService.getDelay());
+					IstioHelper.setFaultAllVirtualServices(IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
 				}
 			});
 		}
 	}
 
-	private Summary getSummary(String title, String name, int round) {
-
-		String key = String.format(SUMMARY_KEY, title, name, round);
-		String json = S3Singleton.getItem(key);
-
-		DocumentContext documentContext = JsonPath.parse(json);
-
-		float iteration = documentContext.read(JSON_PATH_DURATION_MED, Float.class);
-		float rps = documentContext.read(JSON_PATH_HTTP_REQS_RATE, Float.class);
-
-		return new Summary(iteration, rps);
+	private void stabilization(int time) {
+		log.info("Waiting for stabilization");
+		FuntionHelper.sleep(time);
+		log.info("Done!");
 	}
 
-	private void stabilization() {
-		log.info("Waiting for stabilization");
-		FuntionHelper.sleep(20);
-		log.info("Done!");
+	private void clean() {
+		K6Helper.deleteTest();
+		IstioHelper.unsetFaultAllVirtualServices();
+		app.deleteApp();
+	}
+
+	private void createApp() {
+		app.createApp();
+		File initScript = new File(app.getScriptDir(), Constants.SCRIPT_INIT);
+		if (initScript.exists()) {
+			FuntionHelper.exec(initScript.getAbsolutePath());
+		}
+	}
+
+	private void executeMetrics(Path pathTest, int round) {
+		try {
+			File file = new File(app.getPrometheusDir(), "metrics.yaml");
+
+			if (file.exists()) {
+				ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+				List<Metrics> metrics = objectMapper.readValue(file, new TypeReference<List<Metrics>>(){});
+
+				for (Metrics metric : metrics) {
+					VectorResponse vectorResponse = PrometheusHelper.executeQuery(metric.getQuery());
+					Path path = pathTest.resolve(metric.getName() + "-" + round + ".csv");
+					uploadResponse(path, vectorResponse);
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void uploadResponse(Path path, VectorResponse vectorResponse) throws IOException {
+
+		Stream<String> stream = vectorResponse.getData()
+			.getResult()
+			.get(0)
+			.getMetric()
+			.keySet()
+			.stream();
+
+		Stream<String> headers = Stream.concat(stream, Stream.of("value"));
+
+        List<String[]> list = new ArrayList<>();
+        list.add(headers.toArray(String[]::new));
+
+		for (VectorResult vectorResult : vectorResponse.getData().getResult()) {
+			List<String> row = vectorResult.getMetric()
+					.values()
+					.stream()
+					.collect(Collectors.toList());
+			row.add(String.valueOf(vectorResult.getValue().get(1)));
+			list.add(row.toArray(new String[] {}));
+		}
+
+		File file = File.createTempFile("metrics-", ".csv");
+        try {
+        	createCSV(list, file);
+            S3Singleton.uploadFile(path, file);
+        } finally {
+        	file.delete();
+		}
+	}
+
+	private void createCSV(List<String[]> data, File output) {
+		try (CSVWriter writer = new CSVWriter(new FileWriter(output))) {
+            writer.writeAll(data);
+        } catch (Exception e) {
+        	throw new RuntimeException(e);
+		}
+	}
+
+	private Path getPathTest(String scenarie, String testName) {
+		return Paths.get(scenarie, testName);
 	}
 }

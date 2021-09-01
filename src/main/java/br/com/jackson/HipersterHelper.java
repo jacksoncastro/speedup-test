@@ -18,7 +18,7 @@ public final class HipersterHelper {
 
 	public static void createApp() {
 		log.info("Create project");
-		FuntionHelper.exec("kustomize build hipstershop | kubectl apply -f -", Constants.WORKER_DIR);
+		FuntionHelper.exec("kustomize build hipstershop | kubectl apply -f -", Constants.ORQUESTRATION_DIR);
 
 		waitCreate();
 	}
@@ -85,22 +85,22 @@ public final class HipersterHelper {
 		setEnvironmentK6(parameters);
 
 		log.info("Creating test k6 - {}", name);
-		FuntionHelper.exec("kustomize build k6/ | kubectl apply -f -", Constants.WORKER_DIR);
+		FuntionHelper.exec("kustomize build k6/ | kubectl apply -f -", Constants.ORQUESTRATION_DIR);
 		log.info("Created test k6 - {}", name);
 
 		log.info("Wait test {}", name);
-		FuntionHelper.exec("kubectl -n k6 wait job/k6 --for=condition=complete --timeout=1800s", Constants.WORKER_DIR);
+		FuntionHelper.exec("kubectl -n k6 wait job/k6 --for=condition=complete --timeout=1800s", Constants.ORQUESTRATION_DIR);
 		log.info("Fineshed test {}", name);
 
 		log.info("Print result of test {} >>>>>>>>>>>> ", name);
-		FuntionHelper.exec("kubectl -n k6 logs job/k6", Constants.WORKER_DIR);
+		FuntionHelper.exec("kubectl -n k6 logs job/k6", Constants.ORQUESTRATION_DIR);
 		log.info("Print result of test {} <<<<<<<<<<<< ", name);
 	}
 
 	public static void setImage(String deployment, String container, String name) {
 		log.info("Set custom image {} for deploy {}", name, deployment);
 		String command = String.format("kubectl -n default set image deployment/%s %s=%s", deployment, container, name);
-		FuntionHelper.exec(command, Constants.WORKER_DIR);
+		FuntionHelper.exec(command, Constants.ORQUESTRATION_DIR);
 		log.info("Setted custom image {}", name);
 
 		waitCreate();
@@ -110,13 +110,13 @@ public final class HipersterHelper {
 		log.info("Wait create...");
 		FuntionHelper.sleep(1);
 
-		FuntionHelper.exec("kubectl wait po -l group=app --for=condition=ready --timeout=1800s", Constants.WORKER_DIR);
+		FuntionHelper.exec("kubectl wait po -l group=app --for=condition=ready --timeout=1800s", Constants.ORQUESTRATION_DIR);
 		log.info("Created");
 	}
 
 	private static void deleteTest() {
 		log.info("Deleting test");
-		FuntionHelper.exec("kustomize build k6/ | kubectl delete --ignore-not-found=true -f -", Constants.WORKER_DIR);
+		FuntionHelper.exec("kustomize build k6/ | kubectl delete --ignore-not-found=true -f -", Constants.ORQUESTRATION_DIR);
 		log.info("Deleted test");
 	}
 
@@ -130,13 +130,13 @@ public final class HipersterHelper {
 
 		log.info("Deleting app...");
 
-		FuntionHelper.exec("kustomize build hipstershop | kubectl delete --ignore-not-found=true -f -", Constants.WORKER_DIR);
+		FuntionHelper.exec("kustomize build hipstershop | kubectl delete --ignore-not-found=true -f -", Constants.ORQUESTRATION_DIR);
 
-		List<String> output = FuntionHelper.exec("kubectl get po -l group=app -o NAME", Constants.WORKER_DIR);
+		List<String> output = FuntionHelper.exec("kubectl get po -l group=app -o NAME", Constants.ORQUESTRATION_DIR);
 
 		if (output != null && !output.isEmpty()) {
 			log.info("Wait delete...");
-			FuntionHelper.exec("kubectl wait po -l group=app --for=delete --timeout=1800s", Constants.WORKER_DIR);
+			FuntionHelper.exec("kubectl wait po -l group=app --for=delete --timeout=1800s", Constants.ORQUESTRATION_DIR);
 		}
 		log.info("Deleted app.");
 	}
@@ -154,6 +154,6 @@ public final class HipersterHelper {
 		String format = "%s /usr/bin/envsubst < k6/k6-config.env.example > k6/k6-config.env";
 		String command = String.format(format, parameters);
 
-		FuntionHelper.exec(command, Constants.WORKER_DIR);
+		FuntionHelper.exec(command, Constants.ORQUESTRATION_DIR);
 	}
 }

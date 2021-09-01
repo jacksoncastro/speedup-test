@@ -10,8 +10,8 @@ spec:
     spec:
       containers:
       - name: speedup-test
-        # image: jackvasc/speedup-test:1.0.0
-        image: jackvasc/speedup-test
+        image: jackvasc/speedup-test:1.1.0
+        # image: jackvasc/speedup-test
         volumeMounts:
         - name: speedup-test-config
           mountPath: /home/speedup/.kube/config
@@ -32,6 +32,12 @@ spec:
                 key: SECRET_KEY
           - name: SCENARIOS_FILE
             value: /orquestration/scenarios.yml
+          - name: K6_SCRIPT_FILE
+            value: /orquestration/blueperf/k6/script.js
+          - name: PROMETHEUS_URL
+            value: http://prometheus.istio-system.svc.cluster.local:9090
+          - name: ORQUESTRATION_DIR
+            value: /orquestration
       restartPolicy: Never
       volumes:
       - name: speedup-test-config

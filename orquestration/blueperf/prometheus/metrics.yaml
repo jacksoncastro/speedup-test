@@ -1,0 +1,9 @@
+- name: "count"
+  query:
+    avg(
+        istio_request_duration_milliseconds_sum {
+            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+        } / istio_request_duration_milliseconds_count{
+            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+        }
+    ) by (source_app, destination_service)

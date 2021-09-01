@@ -13,7 +13,8 @@ public class VirtualService implements Serializable {
 
 	private static final long serialVersionUID = 3763980030565199850L;
 
-	private float delay;
+	// Format: 1h/1m/1s/1ms. MUST be >=1ms.
+	private String delay;
 
 	private String target;
 

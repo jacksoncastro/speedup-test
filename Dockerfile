@@ -1,3 +1,5 @@
+FROM loadimpact/k6:0.33.0 AS k6
+
 FROM openjdk:8-jdk-alpine3.9
 
 LABEL maintainer="jack.vasc@yahoo.com.br"
@@ -7,7 +9,7 @@ ARG USER=speedup
 
 ENV HOME /home/$USER
 
-RUN apk add --update sudo gettext bash tzdata && \
+RUN apk add --update sudo gettext bash tzdata curl && \
         cp /usr/share/zoneinfo/America/Fortaleza /etc/localtime
 
 RUN adduser -D $USER && \
@@ -21,6 +23,8 @@ wget -qO /tmp/kustomize.tar.gz "https://github.com/kubernetes-sigs/kustomize/rel
 tar -xvf /tmp/kustomize.tar.gz -C /usr/local/bin && \
 chmod +x /usr/local/bin/kubectl /usr/local/bin && \
 rm /tmp/kustomize.tar.gz
+
+COPY --from=k6 /usr/bin/k6 /usr/bin/k6
 
 USER $USER
 

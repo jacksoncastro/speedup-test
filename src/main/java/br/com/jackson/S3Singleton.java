@@ -1,5 +1,7 @@
 package br.com.jackson;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -20,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class S3Singleton {
 
-	private static final String BUCKET_NAME = "hipstershop-k6";
+	// TODO: allow to pick up dynamically
+	// private static final String BUCKET_NAME = "hipstershop-k6";
+	private static final String BUCKET_NAME = "blueperf-k6";
 
 	private static final String FORMAT_REGEX_ROUND = ".*\\/[a-zA-Z]+\\+?\\/[a-z]+-%d\\.[a-z]{3,4}";
 
@@ -100,5 +104,9 @@ public final class S3Singleton {
 		for (S3ObjectSummary objectSummary : objects.getObjectSummaries())  {
 			getAmazonS3().deleteObject(BUCKET_NAME, objectSummary.getKey());
 		}
+	}
+
+	public static void uploadFile(Path path, File file) {
+		getAmazonS3().putObject(BUCKET_NAME, path.toString(), file);
 	}
 }

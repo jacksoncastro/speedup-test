@@ -28,6 +28,10 @@ public final class FuntionHelper {
 		}
 	}
 
+	public static List<String> exec(String command) {
+		return exec(command, System.getProperty("java.io.tmpdir"));
+	}
+
 	public static List<String> exec(String command, String workdir) {
 
 		InputStreamReader inputStreamReader = null;
@@ -45,7 +49,7 @@ public final class FuntionHelper {
 
 			List<String> output = bufferedReader
 					.lines()
-					.peek(FuntionHelper.log::info)
+					.peek(log::info)
 					.collect(Collectors.toList());
 
 			int code = process.waitFor();
