@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class EnvironmentHelper {
+public final class Environment {
 
 	private static final String DEFAULT_SCENARIOS_FILE = "kustomize/scenarios.yml";
 	private static final String DEFAULT_ORQUESTRATION_DIR = "orquestration";

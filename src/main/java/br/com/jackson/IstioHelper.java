@@ -29,14 +29,14 @@ public final class IstioHelper {
     // set fault
 
     public static void setFaultAllVirtualServices(int percent, String duration) {
-        List<String> virtualServicesNames =  getVirtualServicesNames();
+        List<String> virtualServicesNames = getVirtualServicesNames();
         for (String virtualServiceName : virtualServicesNames) {
             setFaultVirtualService(virtualServiceName, percent, duration);
         }
     }
 
     public static void setFaultAllVirtualServicesButTarget(String name, int percent, String duration) {
-        List<String> virtualServicesNames =  getVirtualServicesNames();
+        List<String> virtualServicesNames = getVirtualServicesNames();
         for (String virtualServiceName : virtualServicesNames) {
             if (!virtualServiceName.equalsIgnoreCase(name)) {
                 setFaultVirtualService(virtualServiceName, percent, duration);
@@ -56,7 +56,7 @@ public final class IstioHelper {
     // unset fault
 
     public static void unsetFaultAllVirtualServices() {
-        List<String> virtualServicesNames =  getVirtualServicesNames();
+        List<String> virtualServicesNames = getVirtualServicesNames();
         for (String virtualServiceName : virtualServicesNames) {
             unsetFaultVirtualService(virtualServiceName);
         }
@@ -69,7 +69,7 @@ public final class IstioHelper {
     }
 
     private static List<String> getVirtualServicesNames() {
-        return FuntionHelper.exec("kubectl get vs -o NAME | awk -F/ '{print $2}'");
+        return FunctionHelper.exec("kubectl get vs -o NAME | awk -F/ '{print $2}'");
     }
 
     private static void cleanFault(VirtualServiceKind virtualService) {
@@ -95,7 +95,7 @@ public final class IstioHelper {
     private static VirtualServiceKind getVirtualService(String name) {
         try {
         	String command = String.format(FORMAT_GET_VIRTUAL_SERVICE, name);
-            List<String> exec = FuntionHelper.exec(command);
+            List<String> exec = FunctionHelper.exec(command, false);
             String yaml = exec.stream().collect(Collectors.joining("\n"));
             ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -111,7 +111,7 @@ public final class IstioHelper {
             try {
                 ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
                 objectMapper.writeValue(file, virtualService);
-                FuntionHelper.exec("kubectl apply -f " + file.getAbsolutePath());
+                FunctionHelper.exec("kubectl apply -f " + file.getAbsolutePath());
             } finally {
                 file.deleteOnExit();
             }

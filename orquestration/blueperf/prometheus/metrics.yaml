@@ -1,9 +1,42 @@
-- name: "count"
+- name: "request_duration_average"
   query:
     avg(
         istio_request_duration_milliseconds_sum {
             reporter = "source", response_code =~ "200|0", destination_service != "unknown"
-        } / istio_request_duration_milliseconds_count{
+        }
+        /
+        istio_request_duration_milliseconds_count {
             reporter = "source", response_code =~ "200|0", destination_service != "unknown"
         }
-    ) by (source_app, destination_service)
+    ) by (source_canonical_service, destination_service)
+- name: "count"
+  query:
+    sum by (source_canonical_service, destination_service) (
+        istio_requests_total {
+            reporter = "source",
+            response_code =~ "200|0",
+            destination_service != "unknown"
+        }
+    )
+- name: "bytes_received"
+  query:
+    sum by (source_canonical_service, destination_service_name)
+    (istio_tcp_received_bytes_total {
+            source_canonical_service != "unknown",
+            reporter = "source"
+        }
+    )
+- name: "request_duration_sum"
+  query:
+    sum(
+        istio_request_duration_milliseconds_sum {
+            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+        }
+    ) by (source_canonical_service, destination_service)
+- name: "request_duration_count"
+  query:
+    sum(
+        istio_request_duration_milliseconds_count {
+            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+        }
+    ) by (source_canonical_service, destination_service)

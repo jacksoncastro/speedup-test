@@ -107,6 +107,21 @@ public final class S3Singleton {
 	}
 
 	public static void uploadFile(Path path, File file) {
-		getAmazonS3().putObject(BUCKET_NAME, path.toString(), file);
+		int attempt = 10;
+		while (attempt >= 0) {
+			try {
+				log.info("Uploading file: " + path.toString());
+				getAmazonS3().putObject(BUCKET_NAME, path.toString(), file);
+				log.info("Upload successful");
+				break;
+			} catch (Exception e) {
+				log.error("Failed to attempt file upload:" + path.toString(), e);
+				attempt--;
+				FunctionHelper.sleep(5);
+			}
+		}
+		if (attempt < 0) {
+			throw new RuntimeException("Fail to upload file: " + path.toString());
+		}
 	}
 }

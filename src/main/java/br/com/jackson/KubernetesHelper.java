@@ -15,7 +15,7 @@ public final class KubernetesHelper {
 		log.info("Set custom image {} for deploy {}", name, deployment);
 
 		String command = String.format(FORMAT_SET_IMAGE, deployment, container, name);
-		FuntionHelper.exec(command);
+		FunctionHelper.exec(command);
 		log.info("Setted custom image {}", name);
 
 		waitCreateByLabel("group", "app");
@@ -23,9 +23,9 @@ public final class KubernetesHelper {
 
 	public static void waitCreateByLabel(String name, String value) {
 		log.info("Wait create...");
-		FuntionHelper.sleep(1);
+		FunctionHelper.sleep(1);
 
-		FuntionHelper.exec(String.format(FORMAT_WAIT_CREATE, name, value));
+		FunctionHelper.exec(String.format(FORMAT_WAIT_CREATE, name, value));
 		log.info("Created");
 	}
 }

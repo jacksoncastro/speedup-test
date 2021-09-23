@@ -14,5 +14,5 @@ public class VectorResult {
 
 	private Map<String, String> metric;
 
-	private List<Float> value;
+	private List<String> value;
 }

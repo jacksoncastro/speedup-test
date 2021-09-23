@@ -9,17 +9,15 @@ let sessionWaiting = new Trend('session_waiting');
 let sessionCount = new Counter('session_count');
 
 export let options = {
-    vus: 100,
-    iterations: 100,
+	vus: 1,
+    iterations: 1,
     duration: '20m',
 };
 
 const login = 'uid0@email.com';
 const password = 'password';
 
-const host = 'http://istio-ingressgateway.istio-system.svc.cluster.local';
-// const host = 'http://192.168.1.202';
-// const host = 'http://192.168.1.202:31952';
+const host = __ENV.APP_HOST || 'http://istio-ingressgateway.istio-system.svc.cluster.local';
 
 const authService = host + '/auth';
 const customerService = host + '/customer';
@@ -98,7 +96,7 @@ function findFlightsTest(session) {
 
     const fromDate = new Date(new Date().setHours(0,0,0,0)).toString();
     const returnDate = new Date(new Date().setHours(23,59,59,999)).toString();
-    
+
     const formData = {
         'fromAirport': 'AMS',
         'toAirport': 'BOM',

@@ -15,10 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FuntionHelper {
+public final class FunctionHelper {
 
 	private static final String ENV_PATH_KEY = "PATH";
 	private static final String ENV_PATH_VALUE = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
 	public static void sleep(int timeout) {
 		try {
@@ -29,10 +30,18 @@ public final class FuntionHelper {
 	}
 
 	public static List<String> exec(String command) {
-		return exec(command, System.getProperty("java.io.tmpdir"));
+		return exec(command, true);
+	}
+
+	public static List<String> exec(String command, boolean printOutput) {
+		return exec(command, TEMP_DIR, printOutput);
 	}
 
 	public static List<String> exec(String command, String workdir) {
+		return exec(command, workdir, true);
+	}
+
+	public static List<String> exec(String command, String workdir, boolean printOutput) {
 
 		InputStreamReader inputStreamReader = null;
 		BufferedReader bufferedReader = null;
@@ -49,7 +58,11 @@ public final class FuntionHelper {
 
 			List<String> output = bufferedReader
 					.lines()
-					.peek(log::info)
+					.peek(line -> {
+						if (printOutput) {
+							log.info(line);
+						}
+					})
 					.collect(Collectors.toList());
 
 			int code = process.waitFor();

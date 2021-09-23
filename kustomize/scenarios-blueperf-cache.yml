@@ -1,0 +1,55 @@
+scenarios:
+  - title: FLIGHT-CACHING-1
+    users: 1
+    iterations: 1
+    rounds: 10
+    forceRemoveFolder: false
+    tests:
+      - name: NT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:no-cached
+            container: acmeair-flightservice-java
+      - name: AT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:cached
+            container: acmeair-flightservice-java
+  - title: FLIGHT-CACHING-10
+    users: 10
+    iterations: 10
+    rounds: 10
+    forceRemoveFolder: false
+    tests:
+      - name: NT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:no-cached
+            container: acmeair-flightservice-java
+      - name: AT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:cached
+            container: acmeair-flightservice-java
+  - title: FLIGHT-CACHING-100
+    users: 100
+    iterations: 100
+    rounds: 10
+    forceRemoveFolder: false
+    tests:
+      - name: NT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:no-cached
+            container: acmeair-flightservice-java
+      - name: AT
+        virtualServices:
+        - target: acmeair-flightservice
+          image:
+            name: jackvasc/acmeair-flightservice-java:cached
+            container: acmeair-flightservice-java

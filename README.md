@@ -23,8 +23,10 @@ mvn -DskipTests clean package dockerfile:build && \
 ## Environment configuration
 
 ```bash
-kubectl taint nodes kube-worker-01 group=app:NoSchedule
 kubectl label node kube-worker-01 group=app
+kubectl taint nodes kube-worker-01 group=app:NoSchedule
+
+kubectl label node kube-worker-02 group=test
 ```
 
 Create namespaces

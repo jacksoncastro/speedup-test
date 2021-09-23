@@ -38,6 +38,8 @@ spec:
             value: http://prometheus.istio-system.svc.cluster.local:9090
           - name: ORQUESTRATION_DIR
             value: /orquestration
+          - name: APP_HOST
+            value: http://istio-ingressgateway.istio-system.svc.cluster.local
       restartPolicy: Never
       volumes:
       - name: speedup-test-config

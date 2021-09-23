@@ -45,7 +45,7 @@ public class Main {
 
 	private void init() throws Exception {
 
-		String path = EnvironmentHelper.getScenariosFile();
+		String path = Environment.getScenariosFile();
 
 		File file = new File(path);
 
@@ -91,12 +91,14 @@ public class Main {
 
 		scenario.getTests().forEach(test -> {
 			clean();
+			waitingCleanup();
 			createApp();
 			applyCustoms(test.getVirtualServices());
 			applyVirtualServices(test);
+			initApp();
 			stabilization(20);
 			Path pathTest = getPathTest(scenario.getTitle(), test.getName());
-			runK6(pathTest, round);
+			runK6(pathTest, round, scenario.getUsers(), scenario.getIterations());
 			stabilization(15);
 			executeMetrics(pathTest, round);
 		});
@@ -125,12 +127,12 @@ public class Main {
 		return true;
 	}
 
-	private void runK6(Path pathTest, int round) {
+	private void runK6(Path pathTest, int round, Integer users, Integer iterations) {
 		try {
-			File script = new File(EnvironmentHelper.getK6ScriptFile());
+			File script = new File(Environment.getK6ScriptFile());
 			File summary = File.createTempFile("summary-", ".json");
 			try {
-				K6Helper.runTest(script, summary);
+				K6Helper.runTest(script, summary, users, iterations);
 				Path path = pathTest.resolve("summary-" + round + ".json");
 				S3Singleton.uploadFile(path, summary);
 			} finally {
@@ -174,7 +176,7 @@ public class Main {
 
 	private void stabilization(int time) {
 		log.info("Waiting for stabilization");
-		FuntionHelper.sleep(time);
+		FunctionHelper.sleep(time);
 		log.info("Done!");
 	}
 
@@ -186,9 +188,12 @@ public class Main {
 
 	private void createApp() {
 		app.createApp();
+	}
+
+	private void initApp() {
 		File initScript = new File(app.getScriptDir(), Constants.SCRIPT_INIT);
 		if (initScript.exists()) {
-			FuntionHelper.exec(initScript.getAbsolutePath());
+			FunctionHelper.exec(initScript.getAbsolutePath());
 		}
 	}
 
@@ -203,7 +208,11 @@ public class Main {
 				for (Metrics metric : metrics) {
 					VectorResponse vectorResponse = PrometheusHelper.executeQuery(metric.getQuery());
 					Path path = pathTest.resolve(metric.getName() + "-" + round + ".csv");
-					uploadResponse(path, vectorResponse);
+					try {
+						uploadResponse(path, vectorResponse);
+					} catch (Exception e) {
+						throw new RuntimeException("Erro to execute metric: " + metric.getName(), e);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -253,5 +262,12 @@ public class Main {
 
 	private Path getPathTest(String scenarie, String testName) {
 		return Paths.get(scenarie, testName);
+	}
+
+	private static void waitingCleanup() {
+		while (!PrometheusHelper.hasCleaned()) {
+			log.info("Waiting for cleanup prometheus...");
+			FunctionHelper.sleep(5);
+		}
 	}
 }

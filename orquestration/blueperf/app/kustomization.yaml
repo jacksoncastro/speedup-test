@@ -14,5 +14,9 @@ resources:
   - istio/virtual-service/customer-service.yaml
   - istio/virtual-service/flight-service.yaml
 #  - istio/virtual-services.yaml
+patches:
+- path: patch.yaml
+  target:
+    kind: Deployment
 commonLabels:
   group: app
