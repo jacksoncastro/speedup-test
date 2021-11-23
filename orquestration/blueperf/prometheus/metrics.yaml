@@ -1,14 +1,29 @@
 - name: "request_duration_average"
   query:
     avg(
-        istio_request_duration_milliseconds_sum {
-            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
-        }
-        /
-        istio_request_duration_milliseconds_count {
-            reporter = "source", response_code =~ "200|0", destination_service != "unknown"
-        }
+        (
+            istio_request_duration_milliseconds_sum {
+                reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+            }
+            /
+            istio_request_duration_milliseconds_count {
+                reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+            }
+        ) >= 0
     ) by (source_canonical_service, destination_service)
+- name: "request_duration_average_aggregate"
+  query:
+    avg(
+        (
+            istio_request_duration_milliseconds_sum {
+                reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+            }
+            /
+            istio_request_duration_milliseconds_count {
+                reporter = "source", response_code =~ "200|0", destination_service != "unknown"
+            }
+        ) >= 0
+    ) by (destination_service)
 - name: "count"
   query:
     sum by (source_canonical_service, destination_service) (
@@ -16,14 +31,6 @@
             reporter = "source",
             response_code =~ "200|0",
             destination_service != "unknown"
-        }
-    )
-- name: "bytes_received"
-  query:
-    sum by (source_canonical_service, destination_service_name)
-    (istio_tcp_received_bytes_total {
-            source_canonical_service != "unknown",
-            reporter = "source"
         }
     )
 - name: "request_duration_sum"
@@ -40,3 +47,21 @@
             reporter = "source", response_code =~ "200|0", destination_service != "unknown"
         }
     ) by (source_canonical_service, destination_service)
+- name: "cpu_usage"
+  query:
+    sum (
+        container_cpu_usage_seconds_total {
+            namespace = "default",
+            container != "",
+            container != "POD"
+        }
+    ) by (pod, container, namespace)
+- name: "memory_usage"
+  query:
+    sum (
+        container_memory_rss {
+            namespace = "default",
+            container != "",
+            container != "POD"
+        }
+    ) by (pod, container, namespace)

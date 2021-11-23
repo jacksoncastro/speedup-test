@@ -18,6 +18,8 @@ public class Test implements Serializable {
 
 	private Limite limite;
 
+	private List<Deployments> deployments;
+
 	private List<VirtualService> virtualServices;
 
 }

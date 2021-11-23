@@ -23,10 +23,16 @@ mvn -DskipTests clean package dockerfile:build && \
 ## Environment configuration
 
 ```bash
-kubectl label node kube-worker-01 group=app
-kubectl taint nodes kube-worker-01 group=app:NoSchedule
+kubectl label node kube-worker-app group=app
+kubectl taint nodes kube-worker-app group=app:NoSchedule
 
-kubectl label node kube-worker-02 group=test
+kubectl label node kube-worker-load group=test
+kubectl taint nodes kube-worker-load group=test:NoSchedule
+
+kubectl create ns istio-system
+kubectl label node kube-worker-istio group=istio
+kubectl annotate namespace istio-system scheduler.alpha.kubernetes.io/node-selector=istio
+
 ```
 
 Create namespaces

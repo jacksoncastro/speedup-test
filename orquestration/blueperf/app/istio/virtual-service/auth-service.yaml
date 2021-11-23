@@ -4,15 +4,11 @@ metadata:
   name: auth
 spec:
   hosts:
-  - "*"
-  gateways:
-  - acmeair-gateway
+    - acmeair-auth-service
   http:
-  - match:
-    - uri:
-        prefix: /auth
-    route:
-    - destination:
-        port:
-          number: 9080
-        host: acmeair-auth-service
+    - name: acmeair-auth-service
+      route:
+      - destination:
+          port:
+            number: 9080
+          host: acmeair-auth-service

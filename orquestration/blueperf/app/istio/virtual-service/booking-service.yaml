@@ -4,15 +4,11 @@ metadata:
   name: booking
 spec:
   hosts:
-  - "*"
-  gateways:
-  - acmeair-gateway
+    - acmeair-booking-service
   http:
-  - match:
-    - uri:
-        prefix: /booking
-    route:
-    - destination:
-        port:
-          number: 9080
-        host: acmeair-booking-service
+    - name: acmeair-booking-service
+      route:
+      - destination:
+          port:
+            number: 9080
+          host: acmeair-booking-service

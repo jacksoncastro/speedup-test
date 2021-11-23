@@ -1,0 +1,10 @@
+- op: add
+  path: /spec/template/spec/nodeSelector
+  value:
+    group: test
+- op: add
+  path: /spec/template/spec/tolerations
+  value:
+    - key: "group"
+      operator: "Equal"
+      value: "test"

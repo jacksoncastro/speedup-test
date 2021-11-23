@@ -4,15 +4,11 @@ metadata:
   name: customer
 spec:
   hosts:
-  - "*"
-  gateways:
-  - acmeair-gateway
+    - acmeair-customer-service
   http:
-  - match:
-    - uri:
-        prefix: /customer
-    route:
-    - destination:
-        port:
-          number: 9080
-        host: acmeair-customer-service
+    - name: acmeair-customer-service
+      route:
+      - destination:
+          port:
+            number: 9080
+          host: acmeair-customer-service

@@ -18,6 +18,7 @@ import com.opencsv.CSVWriter;
 
 import br.com.jackson.app.App;
 import br.com.jackson.app.BluePerf;
+import br.com.jackson.dto.Deployments;
 import br.com.jackson.dto.Image;
 import br.com.jackson.dto.Scenario;
 import br.com.jackson.dto.Scenarios;
@@ -31,243 +32,249 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Main {
 
-	private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
+    private static final String SUMMARY_KEY = "%s/%s/summary-%d.json";
 
-	private static final App app = new BluePerf();
+    private static final App app = new BluePerf();
 
-	public Main() throws Exception {
-	}
+    public Main() throws Exception {
+    }
 
-	public static void main(String[] args) throws Exception {
-		Main main = new Main();
-		main.init();
-	}
+    public static void main(String[] args) throws Exception {
+        Main main = new Main();
+        main.init();
+    }
 
-	private void init() throws Exception {
+    private void init() throws Exception {
 
-		String path = Environment.getScenariosFile();
+        String path = Environment.getScenariosFile();
 
-		File file = new File(path);
+        File file = new File(path);
 
-		ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
-		Scenarios scenarios = objectMapper.readValue(file, Scenarios.class);
+        Scenarios scenarios = objectMapper.readValue(file, Scenarios.class);
 
-		scenarios.getScenarios().forEach(this::runScenario);
+        scenarios.getScenarios().forEach(this::runScenario);
 
-	}
+    }
 
-	private void runScenario(Scenario scenario) {
-		try {
-			if (scenario.isForceRemoveFolder()) {
-				log.info("Removing folder {}", scenario.getTitle());
-				S3Singleton.deleteFolder(scenario.getTitle());
-				log.info("Removed folder {}", scenario.getTitle());
-			}
-			for (int round = 1; round <= scenario.getRounds(); round++) {
-				log.info("Begin test number {}", round);
-				test(scenario, round);
-				log.info("Ending test number {}", round);
-			}
-			clean();
-		} catch (Exception e) {
-			log.error("Error in scenario:", e);
-		}
-	}
+    private void runScenario(Scenario scenario) {
+        try {
+            if (scenario.isForceRemoveFolder()) {
+                log.info("Removing folder {}", scenario.getTitle());
+                S3Singleton.deleteFolder(scenario.getTitle());
+                log.info("Removed folder {}", scenario.getTitle());
+            }
+            for (int round = 1; round <= scenario.getRounds(); round++) {
+                log.info("Begin test number {}", round);
+                test(scenario, round);
+                log.info("Ending test number {}", round);
+            }
+            clean();
+        } catch (Exception e) {
+            log.error("Error in scenario:", e);
+        }
+    }
 
-	private void test(Scenario scenario, int round) throws Exception {
-		if (scenario.getTitle() == null || scenario.getTitle().isEmpty()) {
-			throw new Exception("Tittle cannot be empty");
-		}
+    private void test(Scenario scenario, int round) throws Exception {
+        if (scenario.getTitle() == null || scenario.getTitle().isEmpty()) {
+            throw new Exception("Tittle cannot be empty");
+        }
 
-		String[] testsName = this.getTestsName(scenario.getTests());
+        String[] testsName = this.getTestsName(scenario.getTests());
 
-		if (existsRound(scenario.getTitle(), round, testsName)) {
-			log.info("Skipped scenario: {} and round: {}", scenario.getTitle(), round);
-			return;
-		}
+        if (existsRound(scenario.getTitle(), round, testsName)) {
+            log.info("Skipped scenario: {} and round: {}", scenario.getTitle(), round);
+            return;
+        }
 
-		S3Singleton.deleteRound(scenario.getTitle(), round);
+        S3Singleton.deleteRound(scenario.getTitle(), round);
 
-		scenario.getTests().forEach(test -> {
-			clean();
-			waitingCleanup();
-			createApp();
-			applyCustoms(test.getVirtualServices());
-			applyVirtualServices(test);
-			initApp();
-			stabilization(20);
-			Path pathTest = getPathTest(scenario.getTitle(), test.getName());
-			runK6(pathTest, round, scenario.getUsers(), scenario.getIterations());
-			stabilization(15);
-			executeMetrics(pathTest, round);
-		});
-	}
+        scenario.getTests().forEach(test -> {
+            clean();
+            waitingCleanup();
+            createApp();
+            applyDeployments(test.getDeployments());
+            applyVirtualServices(test.getVirtualServices());
+            initApp();
+            stabilization(20);
+            Path pathTest = getPathTest(scenario.getTitle(), test.getName());
+            runK6(pathTest, round, scenario.getUsers(), scenario.getIterations());
+            stabilization(15);
+            executeMetrics(pathTest, round);
+        });
+    }
 
-	private String[] getTestsName(List<Test> tests) {
-		if (tests == null) {
-			return new String[]{};
-		}
-		return tests
-				.stream()
-				.map(Test::getName)
-				.toArray(String[]::new);
-	}
+    private String[] getTestsName(List<Test> tests) {
+        if (tests == null) {
+            return new String[]{};
+        }
+        return tests
+                .stream()
+                .map(Test::getName)
+                .toArray(String[]::new);
+    }
 
-	private boolean existsRound(String title, int round, String[] strings) {
+    private boolean existsRound(String title, int round, String[] strings) {
 
-		for (String test: strings) {
-			String key = String.format(SUMMARY_KEY, title, test, round);
-			boolean exists = S3Singleton.existsItem(key);
+        for (String test: strings) {
+            String key = String.format(SUMMARY_KEY, title, test, round);
+            boolean exists = S3Singleton.existsItem(key);
 
-			if (!exists) {
-				return false;
-			}
-		}
-		return true;
-	}
+            if (!exists) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	private void runK6(Path pathTest, int round, Integer users, Integer iterations) {
-		try {
-			File script = new File(Environment.getK6ScriptFile());
-			File summary = File.createTempFile("summary-", ".json");
-			try {
-				K6Helper.runTest(script, summary, users, iterations);
-				Path path = pathTest.resolve("summary-" + round + ".json");
-				S3Singleton.uploadFile(path, summary);
-			} finally {
-				summary.delete();
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private void runK6(Path pathTest, int round, Integer users, Integer iterations) {
+        try {
+            File script = new File(Environment.getK6ScriptFile());
+            File summary = File.createTempFile("summary-", ".json");
+            try {
+                K6Helper.runTest(script, summary, users, iterations);
+                Path path = pathTest.resolve("summary-" + round + ".json");
+                S3Singleton.uploadFile(path, summary);
+            } finally {
+                summary.delete();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	private void applyCustoms(List<VirtualService> virtualServices) {
-		virtualServices.forEach(virtualService -> {
-			// custom for image
-			if (virtualService.getImage() != null) {
-				Image image = virtualService.getImage();
-				if (StringUtils.hasValue(image.getName()) && StringUtils.hasValue(image.getContainer())) {
-					KubernetesHelper.setImage(virtualService.getTarget(), image.getContainer(), image.getName());
-				}
-			}
-		});
-	}
+    private void applyDeployments(List<Deployments> deployments) {
+        if (deployments == null) {
+            return;
+        }
 
-	private void applyVirtualServices(Test test) {
-		if (test.getVirtualServices() != null && !test.getVirtualServices().isEmpty()) {
-			test.getVirtualServices().forEach(virtualService -> {
-				if (virtualService.getDelay() == null) {
-					return;
-				}
-				if (virtualService.getTarget() != null) {
-					if (virtualService.isAllButTarget()) {
-						IstioHelper.setFaultAllVirtualServicesButTarget(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
-					} else {
-						IstioHelper.setFaultVirtualService(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
-					}
-				} else {
-					IstioHelper.setFaultAllVirtualServices(IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
-				}
-			});
-		}
-	}
+        deployments.forEach(deployment -> {
+            // custom for image
+            if (deployment.getImage() != null) {
+                Image image = deployment.getImage();
+                if (StringUtils.hasValue(image.getName()) && StringUtils.hasValue(image.getContainer())) {
+                    KubernetesHelper.setImage(deployment.getTarget(), image.getContainer(), image.getName());
+                }
+            }
+        });
+    }
 
-	private void stabilization(int time) {
-		log.info("Waiting for stabilization");
-		FunctionHelper.sleep(time);
-		log.info("Done!");
-	}
+    private void applyVirtualServices(List<VirtualService> virtualServices) {
+        if (virtualServices == null) {
+            return;
+        }
 
-	private void clean() {
-		K6Helper.deleteTest();
-		IstioHelper.unsetFaultAllVirtualServices();
-		app.deleteApp();
-	}
+        virtualServices.forEach(virtualService -> {
+            if (virtualService.getDelay() == null) {
+                return;
+            }
+            if (virtualService.getTarget() != null) {
+                if (virtualService.isAllButTarget()) {
+                    IstioHelper.setFaultAllVirtualServicesButTarget(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
+                } else {
+                    IstioHelper.setFaultVirtualService(virtualService.getTarget(), IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
+                }
+            } else {
+                IstioHelper.setFaultAllVirtualServices(IstioHelper.ONE_HUNDRED_PERCENT_FAULT, virtualService.getDelay());
+            }
+        });
+    }
 
-	private void createApp() {
-		app.createApp();
-	}
+    private void stabilization(int time) {
+        log.info("Waiting for stabilization");
+        FunctionHelper.sleep(time);
+        log.info("Done!");
+    }
 
-	private void initApp() {
-		File initScript = new File(app.getScriptDir(), Constants.SCRIPT_INIT);
-		if (initScript.exists()) {
-			FunctionHelper.exec(initScript.getAbsolutePath());
-		}
-	}
+    private void clean() {
+        K6Helper.deleteTest();
+        IstioHelper.cleanAllFault();
+        app.deleteApp();
+    }
 
-	private void executeMetrics(Path pathTest, int round) {
-		try {
-			File file = new File(app.getPrometheusDir(), "metrics.yaml");
+    private void createApp() {
+        app.createApp();
+    }
 
-			if (file.exists()) {
-				ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-				List<Metrics> metrics = objectMapper.readValue(file, new TypeReference<List<Metrics>>(){});
+    private void initApp() {
+        File initScript = new File(app.getScriptDir(), Constants.SCRIPT_INIT);
+        if (initScript.exists()) {
+            FunctionHelper.exec(initScript.getAbsolutePath());
+        }
+    }
 
-				for (Metrics metric : metrics) {
-					VectorResponse vectorResponse = PrometheusHelper.executeQuery(metric.getQuery());
-					Path path = pathTest.resolve(metric.getName() + "-" + round + ".csv");
-					try {
-						uploadResponse(path, vectorResponse);
-					} catch (Exception e) {
-						throw new RuntimeException("Erro to execute metric: " + metric.getName(), e);
-					}
-				}
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private void executeMetrics(Path pathTest, int round) {
+        try {
+            File file = new File(app.getPrometheusDir(), "metrics.yaml");
 
-	private void uploadResponse(Path path, VectorResponse vectorResponse) throws IOException {
+            if (file.exists()) {
+                ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+                List<Metrics> metrics = objectMapper.readValue(file, new TypeReference<List<Metrics>>(){});
 
-		Stream<String> stream = vectorResponse.getData()
-			.getResult()
-			.get(0)
-			.getMetric()
-			.keySet()
-			.stream();
+                for (Metrics metric : metrics) {
+                    VectorResponse vectorResponse = PrometheusHelper.executeQuery(metric.getQuery());
+                    Path path = pathTest.resolve(metric.getName() + "-" + round + ".csv");
+                    try {
+                        uploadResponse(path, vectorResponse);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Erro to execute metric: " + metric.getName(), e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		Stream<String> headers = Stream.concat(stream, Stream.of("value"));
+    private void uploadResponse(Path path, VectorResponse vectorResponse) throws IOException {
+
+        Stream<String> stream = vectorResponse.getData()
+            .getResult()
+            .get(0)
+            .getMetric()
+            .keySet()
+            .stream();
+
+        Stream<String> headers = Stream.concat(stream, Stream.of("value"));
 
         List<String[]> list = new ArrayList<>();
         list.add(headers.toArray(String[]::new));
 
-		for (VectorResult vectorResult : vectorResponse.getData().getResult()) {
-			List<String> row = vectorResult.getMetric()
-					.values()
-					.stream()
-					.collect(Collectors.toList());
-			row.add(String.valueOf(vectorResult.getValue().get(1)));
-			list.add(row.toArray(new String[] {}));
-		}
+        for (VectorResult vectorResult : vectorResponse.getData().getResult()) {
+            List<String> row = vectorResult.getMetric()
+                    .values()
+                    .stream()
+                    .collect(Collectors.toList());
+            row.add(String.valueOf(vectorResult.getValue().get(1)));
+            list.add(row.toArray(new String[] {}));
+        }
 
-		File file = File.createTempFile("metrics-", ".csv");
+        File file = File.createTempFile("metrics-", ".csv");
         try {
-        	createCSV(list, file);
+            createCSV(list, file);
             S3Singleton.uploadFile(path, file);
         } finally {
-        	file.delete();
-		}
-	}
+            file.delete();
+        }
+    }
 
-	private void createCSV(List<String[]> data, File output) {
-		try (CSVWriter writer = new CSVWriter(new FileWriter(output))) {
+    private void createCSV(List<String[]> data, File output) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(output))) {
             writer.writeAll(data);
         } catch (Exception e) {
-        	throw new RuntimeException(e);
-		}
-	}
+            throw new RuntimeException(e);
+        }
+    }
 
-	private Path getPathTest(String scenarie, String testName) {
-		return Paths.get(scenarie, testName);
-	}
+    private Path getPathTest(String scenarie, String testName) {
+        return Paths.get(scenarie, testName);
+    }
 
-	private static void waitingCleanup() {
-		while (!PrometheusHelper.hasCleaned()) {
-			log.info("Waiting for cleanup prometheus...");
-			FunctionHelper.sleep(5);
-		}
-	}
+    private static void waitingCleanup() {
+        while (!PrometheusHelper.hasCleaned()) {
+            log.info("Waiting for cleanup prometheus...");
+            FunctionHelper.sleep(5);
+        }
+    }
 }

@@ -3,6 +3,10 @@ kind: Kustomization
 resources:
   # - namespace.yaml
   - job.yaml
+patches:
+- path: patch.yaml
+  target:
+    kind: Job
 
 # disable suffix hash
 generatorOptions:

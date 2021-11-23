@@ -9,15 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VirtualService implements Serializable {
+public class Deployments implements Serializable {
 
-	private static final long serialVersionUID = 3763980030565199850L;
-
-	// Format: 1h/1m/1s/1ms. MUST be >=1ms.
-	private String delay;
+	private static final long serialVersionUID = -9178284181241110078L;
 
 	private String target;
 
-	private boolean allButTarget;
+	private Image image;
 
 }
