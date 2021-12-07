@@ -1,22 +1,22 @@
 scenarios:
-  - title: FLIGHT-CACHING-100-USERS-1000-ITERATIONS-10-ROUNDS-V4
-    users: 10
-    iterations: 10
-    rounds: 1000
+  - title: FLIGHT-CACHING-100-USERS-1000-ITERATIONS-10-ROUNDS-V6
+    users: 200
+    iterations: 200
+    rounds: 10
     forceRemoveFolder: true
     tests:
       - name: NT
-        # deployments:
-        #   - target: acmeair-flightservice
-        #     image:
-        #       name: jackvasc/acmeair-flightservice-java:no-cached
-        #       container: acmeair-flightservice-java
-      # - name: AT
-      #   deployments:
-      #     - target: acmeair-flightservice
-      #       image:
-      #         name: jackvasc/acmeair-flightservice-java:cached
-      #         container: acmeair-flightservice-java
+        deployments:
+          - target: acmeair-flightservice
+            image:
+              name: jackvasc/acmeair-flightservice-java:no-cached
+              container: acmeair-flightservice-java
+      - name: AT
+        deployments:
+          - target: acmeair-flightservice
+            image:
+              name: jackvasc/acmeair-flightservice-java:cached
+              container: acmeair-flightservice-java
       # - name: DT
       #   deployments:
       #     - target: acmeair-flightservice
@@ -25,9 +25,9 @@ scenarios:
       #         container: acmeair-flightservice-java
       #   virtualServices:
       #     - target: acmeair-flight-service
-      #       delay: 13ms
+      #       delay: 31ms
       #     - target: acmeair-flight-service
-      #       delay: 13ms
+      #       delay: 31ms
       #       allButTarget: true
       # - name: DTS
       #   deployments:
@@ -37,5 +37,5 @@ scenarios:
       #         container: acmeair-flightservice-java
       #   virtualServices:
       #     - target: acmeair-flight-service
-      #       delay: 13ms
+      #       delay: 31ms
       #       allButTarget: true

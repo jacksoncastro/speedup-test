@@ -45,3 +45,15 @@ kubectl create ns speedup-test
 ```bash
 docker rmi $(docker images | grep -i jack | awk '{print $3}')
 ```
+
+Pull all images
+
+```bash
+crictl images | grep -i jackvasc | grep -v '<none>' | awk '{print $1":"$2}' | xargs -L 1 crictl pull
+```
+
+Cleanup images
+
+```bash
+crictl images | grep -i jackvasc | grep '<none>' | awk '{print $3}' | xargs crictl rmi
+```
